@@ -29,6 +29,9 @@
       <link rel="stylesheet" href="{{ asset('admin/assets/fonts/phosphor/duotone/style.css')}}" />
    </head>
    <!-- [Head] end -->
+   @php
+     use Illuminate\Support\Facades\Auth;
+   @endphp
    <!-- [Body] Start -->
    <body data-pc-preset="preset-1" data-pc-sidebar-theme="light" data-pc-sidebar-caption="true" data-pc-direction="ltr" data-pc-theme="light">
       <!-- [ Pre-loader ] start -->
@@ -42,7 +45,7 @@
       <nav class="pc-sidebar">
          <div class="navbar-wrapper">
             <div class="m-header">
-               <a href="index.php" class="b-brand text-primary">
+               <a href="{{route('admin.dashboard')}}" class="b-brand text-primary">
                   <!-- ========   Change your logo from here   ============ -->
                   <img src="{{ asset('admin/assets/images/Logo.png')}}"  alt="logo image" class="main_logo" /> 
                </a>
@@ -94,7 +97,7 @@
                      <li class="pc-item"><a href="{{route('admin.user.index')}}" class="pc-link">View User</a></li>
                   </ul>
                </li>
-               <li class="pc-item pc-hasmenu {{request()->routeIs('admin.plot.*') ? 'active' : ''}}">
+               <li class="pc-item pc-hasmenu {{request()->routeIs('admin.project.*') ? 'active' : ''}}">
                   <a href="#!" class="pc-link"
                      >
                      <span class="pc-micon">
@@ -105,8 +108,8 @@
                         >
                   </a>
                   <ul class="pc-submenu">
-                     <li class="pc-item"><a href="add_project.php" class="pc-link">Add Project</a></li>
-                     <li class="pc-item"><a href="view_project.php" class="pc-link">View Project</a></li>
+                     <li class="pc-item"><a href="{{route('admin.project.create')}}" class="pc-link">Add Project</a></li>
+                     <li class="pc-item"><a href="{{route('admin.project.index')}}" class="pc-link">View Project</a></li>
                   </ul>
                </li>
 
@@ -338,8 +341,8 @@
                                           <img src="{{ asset('admin/assets/images/user/avatar-2.jpg')}}" alt="user-image" class="wid-50 rounded-circle" />
                                        </div>
                                        <div class="flex-grow-1 mx-3">
-                                          <h5 class="mb-0">user</h5>
-                                          <a class="link-primary" href="#">info@company.io</a>
+                                          <h5 class="mb-0">{{ Auth::user()->details->first_name }} {{ Auth::user()->details->last_name }}</h5>
+                                          <a class="link-primary" href="#">{{ Auth::user()->email }}</a>
                                        </div>
                                     </div>
                                  </li>
@@ -357,12 +360,17 @@
                                     <span>Edit profile</span>
                                     </span>
                                     </a>
-                                    <a href="#" class="dropdown-item">
-                                    <span class="d-flex align-items-center">
-                                    <i class="ph-duotone ph-power"></i>
-                                    <span>Logout</span>
+                                    <span class="dropdown-item">
+                                       <form method="POST" action="{{ route('logout') }}" class="d-inline">
+                                          @csrf
+                                          <button type="submit" class="dropdown-item" style="background:none; border:none; padding:0; cursor:pointer;">
+                                             <span class="d-flex align-items-center">
+                                                   <i class="ph-duotone ph-power"></i>
+                                                   <span>Logout</span>
+                                             </span>
+                                          </button>
+                                       </form>
                                     </span>
-                                    </a>
                                  </li>
                               </ul>
                            </div>

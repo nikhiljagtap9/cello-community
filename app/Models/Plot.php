@@ -10,6 +10,6 @@ class Plot extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'plot_name', 'plot_size', 'plot_location', 'project_name',
+        'plot_name', 'plot_size', 'plot_location', 'plot_dimensions', 'project_id',
     ];
 }

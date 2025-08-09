@@ -38,23 +38,21 @@
                     <table id="row-callback" class="table table-striped table-bordered nowrap">
                         <thead>
                            <tr>
-                              <th>Plot Name</th>
-                              <th>Plot Size</th>
-                              <th>Plot Location</th>
                               <th>Project Name</th>
+                              <th>Added User</th>
+                              <th>Project Image</th>
                               <th>Edit</th>
                               <th>Delete</th>
                            </tr>
                         </thead>
                         <tbody>
-                            @foreach($plots as $plot)
+                            @foreach($projects as $project)
                            <tr>
-                                <td>{{$plot->plot_name}}</td>
-                                <td>{{$plot->plot_size}}</td>
-                                <td>{{$plot->plot_location}}</td>
-                                <td>{{$plot->project_name}}</td>
+                              <td>{{$project->name}}</td>
+                              <td>{{$project->user->details->first_name}} {{$project->user->details->last_name}}</td>
+                              <td> <a  onclick="openModal_img('{{ asset('storage/' . $project->image) }}')" class="view_prdc"> VIEW </a> </td>
                                 <td>
-                                    <a href="{{route('admin.plot.edit', $plot->id)}}" class="edit_movie" >
+                                    <a href="{{route('admin.project.edit', $project->id)}}" class="edit_movie" >
                                         <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-edit">
                                         <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
                                         <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
@@ -64,7 +62,7 @@
                                     </a>
                                 </td>
                                 <td>
-                                    <button type="button" class="btn btn-link p-0 m-0 border-0 bg-transparent" data-bs-toggle="modal" data-bs-target="#deleteModal{{ $plot->id }}">
+                                    <button type="button" class="btn btn-link p-0 m-0 border-0 bg-transparent" data-bs-toggle="modal" data-bs-target="#deleteModal{{ $project->id }}">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                             stroke-linecap="round" stroke-linejoin="round"
@@ -79,19 +77,19 @@
                                     </button>
 
                                     <!-- Delete Modal -->
-                                    <div class="modal fade" id="deleteModal{{ $plot->id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ $plot->id }}" aria-hidden="true">
+                                    <div class="modal fade" id="deleteModal{{ $project->id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ $project->id }}" aria-hidden="true">
                                         <div class="modal-dialog modal-dialog-centered">
                                             <div class="modal-content">
                                                 <div class="modal-header">
-                                                <h5 class="modal-title" id="deleteModalLabel{{ $plot->id }}">Confirm Delete</h5>
+                                                <h5 class="modal-title" id="deleteModalLabel{{ $project->id }}">Confirm Delete</h5>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                 </div>
                                                 <div class="modal-body">
-                                                Are you sure you want to delete <strong>{{ $plot->plot_name }}</strong>?
+                                                Are you sure you want to delete <strong>{{ $project->name }}</strong>?
                                                 </div>
                                                 <div class="modal-footer">
                                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                <form action="{{ route('admin.plot.destroy', $plot->id) }}" method="POST">
+                                                <form action="{{ route('admin.project.destroy', $project->id) }}" method="POST">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="btn btn-danger">Yes, Delete</button>
@@ -100,9 +98,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    </td>
-
-                               
+                                </td>                            
                            </tr>
                             @endforeach
                         </tbody>
@@ -121,6 +117,7 @@
 <script src="{{ asset('admin/assets/js/plugins/dataTables.min.js')}}"></script>
 <script src="{{ asset('admin/assets/js/plugins/dataTables.bootstrap5.min.js')}}"></script>
 <script>
+      // [ DOM/jquery ]
    var total, pageTotal;
    var table = $('#dom-jqry').DataTable();
    // [ column Rendering ]

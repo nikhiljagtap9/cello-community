@@ -4,14 +4,18 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\PlotController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\ProjectController;
+use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\User\UserDashboardController;
+use App\Http\Controllers\User\UserProjectController;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+// Route::get('/dashboard', function () {
+//     return view('dashboard');
+// })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -22,12 +26,26 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-        Route::get('/dashboard', function () {
-            return view('admin.dashboard');
-        })->name('dashboard');
 
+        Route::get('dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
         Route::resource('plot', PlotController::class);
         Route::resource('user', UserController::class);
+        Route::resource('project', ProjectController::class);
+    });
+
+    Route::middleware(['auth', 'users'])->prefix('user')->name('user.')->group(function () {
+
+        Route::get('dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
+        // New Projects (created by admin)
+        Route::get('/projects/new', [UserProjectController::class, 'newProjects'])
+        ->name('project.new');
+    
+        // Ongoing Projects (status = ongoing)
+        Route::get('/projects/ongoing', [UserProjectController::class, 'ongoingProjects'])
+            ->name('project.ongoing');
+
+        Route::get('projects/{id}', [UserProjectController::class, 'show'])->name('project.show'); 
+        Route::post('projects/assign-freelancers', [UserProjectController::class, 'assignFreelancers'])->name('project.assignFreelancers');    
     });
 
     Route::middleware(['freelance'])->group(function () {

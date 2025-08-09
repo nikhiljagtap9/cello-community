@@ -2,12 +2,13 @@
     <div class="modal-content">
       <span class="close" onclick="closeModal()">&times;</span>
       <h2>Project Image</h2>
-      <img src="{{ asset('admin/assets/images/aa.jpg')}}">
+      <img id="modalImage" src="" alt="Project Image">
     </div>
 
   <script>
     // Open Modal
-    function openModal_img() {
+    function openModal_img(imageUrl) {
+      document.getElementById("modalImage").src = imageUrl;
       document.getElementById("myModal_img").style.display = "block";
     }
 

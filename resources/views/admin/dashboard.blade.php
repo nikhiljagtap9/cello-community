@@ -19,7 +19,8 @@
             <div class="row align-items-center">
                <div class="col-md-12">
                   <div class="page-header-title">
-                     <h2 class="mb-0">🌞 Hello, Stephanie S. <span class="super_admn" > (Super Admin) </span> </h2>
+                     <h2 class="mb-0">🌞 Hello, {{ $admin->details->first_name }} {{ $admin->details->last_name }}
+                        <span class="super_admn" > ({{ ucfirst($admin->user_type) }}) </span> </h2>
                   </div>
                </div>
             </div>
@@ -39,10 +40,10 @@
                   <div class="card-body" bis_skin_checked="1">
                      <img src="assets/images/widget/img-status-1.svg" alt="img" class="img-fluid img-bg h-100">
                      <div class="d-flex align-items-center" bis_skin_checked="1">
-                        <h3 class="f-w-300 d-flex align-items-center m-b-0">30 Plot's</small></h3>
-                        <span class="badge bg-light-success ms-2">5 New Plots</span>
+                        <h3 class="f-w-300 d-flex align-items-center m-b-0">{{ $totalPlots }} Plot's</small></h3>
+                        <span class="badge bg-light-success ms-2">{{ $newPlots }} New Plots</span>
                      </div>
-                     <a class="btn btn-sm btn-primary plot_ad_new" href="add_plot.php">
+                     <a class="btn btn-sm btn-primary plot_ad_new" href="{{ route('admin.plot.create') }}">
                      + Add New Plot
                      </a>
                      <div class="clear"></div>
@@ -58,10 +59,10 @@
                   <div class="card-body" bis_skin_checked="1">
                      <img src="assets/images/widget/img-status-1.svg" alt="img" class="img-fluid img-bg h-100">
                      <div class="d-flex align-items-center" bis_skin_checked="1">
-                        <h3 class="f-w-300 d-flex align-items-center m-b-0">45 User's</small></h3>
-                        <span class="badge bg-light-success ms-2">15 New User</span>
+                        <h3 class="f-w-300 d-flex align-items-center m-b-0">{{ $totalUsers }} User's</small></h3>
+                        <span class="badge bg-light-success ms-2">{{ $newUsers }} New User</span>
                      </div>
-                     <a class="btn btn-sm btn-primary plot_ad_new" href="add_user.php">
+                     <a class="btn btn-sm btn-primary plot_ad_new" href="{{ route('admin.user.create') }}">
                      + Add New User
                      </a>
                      <div class="clear"></div>
@@ -77,10 +78,10 @@
                   <div class="card-body" bis_skin_checked="1">
                      <img src="assets/images/widget/img-status-1.svg" alt="img" class="img-fluid img-bg h-100">
                      <div class="d-flex align-items-center" bis_skin_checked="1">
-                        <h3 class="f-w-300 d-flex align-items-center m-b-0">24 Project's</small></h3>
-                        <span class="badge bg-light-success ms-2">5 New Projects</span>
+                        <h3 class="f-w-300 d-flex align-items-center m-b-0">{{ $totalProjects }} Project's</small></h3>
+                        <span class="badge bg-light-success ms-2">{{ $newProjects }} New Projects</span>
                      </div>
-                     <a class="btn btn-sm btn-primary plot_ad_new" href="add_project.php">
+                     <a class="btn btn-sm btn-primary plot_ad_new" href="{{ route('admin.project.create') }}">
                      + Add New Project
                      </a>
                      <div class="clear"></div>
