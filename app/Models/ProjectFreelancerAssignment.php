@@ -12,4 +12,20 @@ class ProjectFreelancerAssignment extends Model
         'plot_id',
         'role',
     ];
+
+    public function freelancer()
+    {
+        return $this->belongsTo(User::class, 'freelancer_id');
+    }
+
+    /**
+    * parent_id in users = inviter’s id
+
+    * freelancer_id in project_freelancer_assignments table links to the inviter’s user ID.
+     */
+   public function invitedUsers()
+    {
+        return $this->hasMany(User::class, 'parent_id', 'freelancer_id');
+    }
+
 }

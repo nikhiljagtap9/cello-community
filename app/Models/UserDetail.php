@@ -15,6 +15,7 @@ class UserDetail extends Model
         'last_name',
         'address',
         'phone',
+        'referral_code',
         'passport',
         'picture',
     ];

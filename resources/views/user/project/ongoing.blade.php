@@ -35,7 +35,7 @@
                                         {{ ucwords($project->description) }}
                                     </div>
                                     <div class="clear"></div>
-                                    <a class="btn btn-sm btn-primary plot_ad_new" href="{{route('user.project.show',$project->id)}}">
+                                    <a class="btn btn-sm btn-primary plot_ad_new" href="{{route('user.project.detail',$project->id)}}">
                                     View Project
                                     </a>
                                     <div class="clear"></div>

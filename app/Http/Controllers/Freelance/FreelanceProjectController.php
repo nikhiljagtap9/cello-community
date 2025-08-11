@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\User;
+namespace App\Http\Controllers\Freelance;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -14,7 +14,7 @@ use App\Models\ProjectFreelancerAssignment;
 use Illuminate\Support\Str;
 
 
-class UserProjectController extends Controller
+class FreelanceProjectController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -130,30 +130,15 @@ class UserProjectController extends Controller
     public function detail($id)
     {
         $project = Project::with([
-        'plots',
-        'freelancerAssignments.freelancer',   // get freelancer user details
-        'freelancerAssignments' => function ($query) {  // get freelancer invited user details
-            $query->withCount('invitedUsers');
-        }
+            'plots',
+            'freelancerAssignments.freelancer',
+           // 'freelancerAssignments.invitedUsers'
         ])
         ->where('id', $id)
         ->firstOrFail();
 
         return view('user.project.details', compact('project'));
     }
-
-
-    public function getPlotAssignments($projectId, $plotId)
-    {
-        $assignments = ProjectFreelancerAssignment::with(['freelancer.details'])
-            ->where('project_id', $projectId)
-            ->where('plot_id', $plotId)
-            ->withCount('invitedUsers')
-            ->get();
-
-        return response()->json($assignments);
-    }
-
 
    
     /**

@@ -39,9 +39,8 @@ class AuthenticatedSessionController extends Controller
                 return redirect()->route('freelance.dashboard');
             case 'prospect':
                 return redirect()->route('prospect.dashboard');
-            case 'user':
             default:
-                return redirect()->route('dashboard');
+                return redirect()->route('user.dashboard');
         }
     }
 

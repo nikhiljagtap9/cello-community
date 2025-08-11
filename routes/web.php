@@ -8,6 +8,8 @@ use App\Http\Controllers\Admin\ProjectController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\User\UserDashboardController;
 use App\Http\Controllers\User\UserProjectController;
+use App\Http\Controllers\Freelance\FreelanceDashboardController;
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -45,13 +47,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('project.ongoing');
 
         Route::get('projects/{id}', [UserProjectController::class, 'show'])->name('project.show'); 
-        Route::post('projects/assign-freelancers', [UserProjectController::class, 'assignFreelancers'])->name('project.assignFreelancers');    
+        Route::post('projects/assign-freelancers', [UserProjectController::class, 'assignFreelancers'])->name('project.assignFreelancers');  
+        Route::get('projects/{id}/detail', [UserProjectController::class, 'detail'])->name('project.detail');  
+        Route::get('/project/{project}/plot/{plot}/assignments', [UserProjectController::class, 'getPlotAssignments'])
+            ->name('project.plot.assignments');
+
     });
 
-    Route::middleware(['freelance'])->group(function () {
-        Route::get('/freelance/dashboard', function () {
-            return view('freelance.dashboard');
-        })->name('freelance.dashboard');
+    Route::middleware(['auth', 'freelance'])->prefix('freelance')->name('freelance.')->group(function () {
+         Route::get('dashboard', [FreelanceDashboardController::class, 'index'])->name('dashboard');
     });
 
     Route::middleware(['prospect'])->group(function () {
@@ -61,9 +65,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     // Optional default route
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+    // Route::get('/dashboard', function () {
+    //     return view('dashboard');
+    // })->name('dashboard');
 });
 
 require __DIR__.'/auth.php';
