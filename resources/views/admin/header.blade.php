@@ -61,7 +61,7 @@
                   <span class="pc-mtext" >Dashboard</span> 
                   </a>
                </li>
-               <li class="pc-item pc-hasmenu {{request()->routeIs('admin.plot.*') ? 'active' : ''}}">
+               <!-- <li class="pc-item pc-hasmenu {{request()->routeIs('admin.plot.*') ? 'active' : ''}}">
                   <a href="#!" class="pc-link"
                      >
                      <span class="pc-micon">
@@ -81,7 +81,7 @@
                      <li class="pc-item"><a href="{{route('admin.plot.create')}}" class="pc-link">Add Plot</a></li>
                      <li class="pc-item"><a href="{{route('admin.plot.index')}}" class="pc-link">View Plot</a></li>
                   </ul>
-               </li>
+               </li> -->
                <li class="pc-item pc-hasmenu {{request()->routeIs('admin.user.*') ? 'active' : ''}}">
                   <a href="#!" class="pc-link"
                      >

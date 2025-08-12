@@ -34,7 +34,7 @@ class PlotController extends Controller
             'plot_name' => 'required',
             'plot_size' => 'required',
             'plot_location' => 'required',
-            'project_name' => 'required',
+            'plot_dimensions' => 'required',
         ]);
         Plot::create($request->all());
         return redirect()->route('admin.plot.index')->with('success', 'Plot added successfully.');

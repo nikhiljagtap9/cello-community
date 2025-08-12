@@ -41,7 +41,7 @@
                               <th>Plot Name</th>
                               <th>Plot Size</th>
                               <th>Plot Location</th>
-                              <th>Project Name</th>
+                              <th>Plot Dimensions</th>
                               <th>Edit</th>
                               <th>Delete</th>
                            </tr>
@@ -52,7 +52,7 @@
                                 <td>{{$plot->plot_name}}</td>
                                 <td>{{$plot->plot_size}}</td>
                                 <td>{{$plot->plot_location}}</td>
-                                <td>{{$plot->project_name}}</td>
+                                <td>{{$plot->plot_dimensions}}</td>
                                 <td>
                                     <a href="{{route('admin.plot.edit', $plot->id)}}" class="edit_movie" >
                                         <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-edit">

@@ -46,9 +46,9 @@
                                 </div>
 
                                 <div class="col-md-4">
-                                    <label>Project Name</label>
-                                    <input type="text" name="project_name" value="{{ old('project_name', $plot->project_name) }}" class="form-control">
-                                    @error('project_name') <small class="text-danger">{{ $message }}</small> @enderror
+                                    <label>Plot Dimension</label>
+                                    <input type="text" name="plot_dimensions" value="{{ old('plot_dimensions', $plot->plot_dimensions) }}" class="form-control">
+                                    @error('plot_dimensions') <small class="text-danger">{{ $message }}</small> @enderror
                                 </div>
                             </div>
 
