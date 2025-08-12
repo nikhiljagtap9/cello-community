@@ -11,9 +11,13 @@ use App\Http\Controllers\User\UserProjectController;
 use App\Http\Controllers\Freelance\FreelanceDashboardController;
 
 
+// Route::get('/', function () {
+//     return view('welcome');
+// });
+
 Route::get('/', function () {
-    return view('welcome');
-});
+    return view('auth.login');
+})->name('login');
 
 // Route::get('/dashboard', function () {
 //     return view('dashboard');

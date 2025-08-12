@@ -53,7 +53,7 @@ class UserProjectController extends Controller
             // --- Create Freelancer A ---
             if ($request->freelancer_a_email) {
                 $password = Str::random(8);
-                $password = 'niksjagtap';
+                $password = '12345678';
                 $freelancerA = User::create([
                     'email'     => $request->freelancer_a_email,
                     'password'  => bcrypt($password),
@@ -72,9 +72,9 @@ class UserProjectController extends Controller
                 ProjectFreelancerAssignment::create([
                     'project_id'    => $projectId,
                     'freelancer_id' => $freelancerA->id,
-                    'plot_id'       => $request->plot_a_id, // selected plot for A
-                    'role'          => 'A',
+                    'plot_id'       => $request->plot_id, // selected plot for A
                     'status'          => 'ongoing',
+                    'role'          => 'A'         
                 ]);
 
               //  Mail::to($freelancerA->email)->send(new TempPasswordMail($password));
@@ -83,7 +83,7 @@ class UserProjectController extends Controller
             // --- Create Freelancer B ---
             if ($request->freelancer_b_email) {
                 $password = Str::random(8);
-                $password = 'niksjagtap';
+                $password = '12345678';
                 $freelancerB = User::create([
                     'email'     => $request->freelancer_b_email,
                     'password'  => bcrypt($password),
@@ -101,9 +101,9 @@ class UserProjectController extends Controller
                 ProjectFreelancerAssignment::create([
                     'project_id'    => $projectId,
                     'freelancer_id' => $freelancerB->id,
-                    'plot_id'       => $request->plot_b_id,
-                    'role'          => 'B',
+                    'plot_id'       => $request->plot_id,
                     'status'          => 'ongoing',
+                    'role'          => 'B',          
                 ]);
 
               //  Mail::to($freelancerB->email)->send(new TempPasswordMail($password));

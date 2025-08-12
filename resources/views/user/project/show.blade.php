@@ -43,90 +43,41 @@
                            <div class="clear"></div>
                              
 
-                            <div class="map_wrap 603">
+                           <div class="map_wrap 603">
                               <div class="map_wrap_inner">
                                  <div class="map_pointer">
                                     
                                     <img src="{{ asset('storage/' . $project->image) }}" class="map_img" > 
+                                    <!-- Map markers -->
                                     <div class="map_pointer_main">
-                                       <div class="pointer_circ circl_1 avlbl_mrk tooltip-container">
-                                          <div class="tooltip-text">Available</div>
-                                       </div>
-                                       <div class="pointer_circ circl_2 sold_mrk tooltip-container">
-                                          <div class="tooltip-text">Sold</div>
-                                       </div>
-                                       <div class="pointer_circ circl_3 avlbl_mrk tooltip-container">
-                                          <div class="tooltip-text">Available</div>
-                                       </div>
-                                       <div class="pointer_circ circl_4 sold_mrk tooltip-container">
-                                          <div class="tooltip-text">Sold</div>
-                                       </div>
-                                       <div class="pointer_circ circl_6 booked_mrk tooltip-container">
-                                          <div class="tooltip-text">Booked</div>
-                                       </div>
-                                       <div class="pointer_circ circl_7 sold_mrk tooltip-container">
-                                          <div class="tooltip-text">Sold</div>
-                                       </div>
-                                       <div class="pointer_circ circl_8 avlbl_mrk tooltip-container">
-                                          <div class="tooltip-text">Available</div>
-                                       </div>
-                                       <div class="pointer_circ circl_9 sold_mrk tooltip-container">
-                                          <div class="tooltip-text">Sold</div>
-                                       </div>
-                                       <div class="pointer_circ circl_10 booked_mrk tooltip-container">
-                                          <div class="tooltip-text">Booked</div>
-                                       </div>
-                                       <div class="pointer_circ circl_11 avlbl_mrk tooltip-container">
-                                          <div class="tooltip-text">Available</div>
-                                       </div>
-                                       <div class="pointer_circ circl_12 booked_mrk tooltip-container">
-                                          <div class="tooltip-text">Booked</div>
-                                       </div>
+                                       @foreach($project->plots as $plot)
+                                          @php
+                                             // Determine status class
+                                             $statusClass = match(strtolower($plot->status)) {
+                                                   'available' => 'avlbl_mrk',
+                                                   'sold' => 'sold_mrk',
+                                                   'booked' => 'booked_mrk',
+                                                   default => '',
+                                             };
 
-
-
-
-
-
-
-                                       <div class="pointer_circ circl_13 avlbl_mrk tooltip-container">
-                                          <div class="tooltip-text">Available</div>
-                                       </div>
-                                       <div class="pointer_circ circl_14 sold_mrk tooltip-container">
-                                          <div class="tooltip-text">Sold</div>
-                                       </div>
-                                       <div class="pointer_circ circl_15 avlbl_mrk tooltip-container">
-                                          <div class="tooltip-text">Available</div>
-                                       </div>
-                                       <div class="pointer_circ circl_16 sold_mrk tooltip-container">
-                                          <div class="tooltip-text">Sold</div>
-                                       </div>
-                                       <div class="pointer_circ circl_17 booked_mrk tooltip-container">
-                                          <div class="tooltip-text">Booked</div>
-                                       </div>
-                                       <div class="pointer_circ circl_18 sold_mrk tooltip-container">
-                                          <div class="tooltip-text">Sold</div>
-                                       </div>
-                                       <div class="pointer_circ circl_19 avlbl_mrk tooltip-container">
-                                          <div class="tooltip-text">Available</div>
-                                       </div>
-                                       <div class="pointer_circ circl_20 sold_mrk tooltip-container">
-                                          <div class="tooltip-text">Sold</div>
-                                       </div>
-                                       <div class="pointer_circ circl_21 booked_mrk tooltip-container">
-                                          <div class="tooltip-text">Booked</div>
-                                       </div>
-                                       <div class="pointer_circ circl_22 avlbl_mrk tooltip-container">
-                                          <div class="tooltip-text">Available</div>
-                                       </div>
-                                       <div class="pointer_circ circl_23 booked_mrk tooltip-container">
-                                          <div class="tooltip-text">Booked</div>
-                                       </div>
-
-                                       <div class="clear"></div>
+                                             // Circle class - using iteration or plot ID
+                                             $circleClass = 'circl_' . ($loop->iteration); // Or $plot->id
+                                          @endphp
+                                          <div 
+                                                class="pointer_circ {{ $circleClass }} {{ $statusClass }} {{ strtolower($plot->status) }}_mrk tooltip-container" 
+                                                data-plot-id="{{ $plot->id }}" 
+                                                data-plot-name="{{ $plot->plot_name }}"
+                                                data-plot-size="{{ $plot->plot_size }}"
+                                                data-plot-location="{{ $plot->plot_location }}"
+                                                data-plot-dimensions="{{ $plot->plot_dimensions }}">
+                                                <div class="tooltip-text">{{ ucfirst($plot->status) }}</div>
+                                          </div>
+                                         
+                                       @endforeach
                                     </div>
-
                                  </div>
+                                 <!-- Hidden field for submission -->
+                                 <input type="hidden" name="plot_id" id="plot_id">
                                  <div class="map_img_descrp">
                                     <div class="map_det"> Select Plot  </div>
                                     <div class="card-body" bis_skin_checked="1">
@@ -137,11 +88,10 @@
 
                                                   <div class="col-md-12 plot_detl" bis_skin_checked="1">
                                                    <label class="form-label" ></label> 
-                                                   <select class="form-control" >
-                                                      <option>PLot A</option>
-                                                      <option>PLot B</option>
-                                                      <option>PLot C</option>
-                                                      <option>PLot D</option>
+                                                   <select id="plot_select" class="form-control">
+                                                      @foreach($project->plots as $plot)
+                                                            <option value="{{ $plot->id }}">{{ $plot->plot_name }}</option>
+                                                      @endforeach
                                                    </select>
                                                 </div>
 
@@ -156,16 +106,14 @@
                                     </div>
                                     <div class="clear"></div>
 
-                                    <div class="map_det"> Plot Dimensions </div>
-                                    <div class="width_dismn">
-                                       <div class="width_1">Width</div>
-                                       <div class="width_1">Height</div>
-                                       <div class="clear"></div>
-                                       <div class="ans_width">120 Foot</div>
-                                       <div class="ans_width">120 Foot</div>
-
-                                       <div class="clear"></div>
-                                    </div>
+                                 <!-- Plot Information -->
+                                 <div class="map_det">Plot Information</div>
+                                 <div class="plot_info">
+                                    <div><strong>Name:</strong> <span id="info_name"></span></div>
+                                    <div><strong>Size:</strong> <span id="info_size"></span></div>
+                                    <div><strong>Location:</strong> <span id="info_location"></span></div>
+                                    <div><strong>Dimensions:</strong> <span id="info_dimensions"></span></div>
+                                 </div>
 
 
 
@@ -208,6 +156,7 @@
                                  <div class="clear"></div>
                                  Add freelancer A
                               </div>
+                              <div id="freelancer_a_message" class="text-success mt-1"></div>
                            </div>
 
 
@@ -219,6 +168,7 @@
                                  <div class="clear"></div>
                                  Add freelancer B
                               </div>
+                              <div id="freelancer_b_message" class="text-success mt-1"></div>
                            </div>
 
                             <!-- Hidden fields for Freelancer A -->
@@ -227,7 +177,7 @@
                             <input type="hidden" id="freelancer_a_email" name="freelancer_a_email">
                             <input type="hidden" id="freelancer_a_phone" name="freelancer_a_phone">
                             <input type="hidden" id="freelancer_a_address" name="freelancer_a_address">
-                            <input type="hidden" id="freelancer_a_referral_code" name="freelancer_a_referral_code">
+                            <!-- <input type="hidden" id="freelancer_a_referral_code" name="freelancer_a_referral_code"> -->
 
                             <!-- Hidden fields for Freelancer B -->
                             <input type="hidden" id="freelancer_b_first_name" name="freelancer_b_first_name">
@@ -235,7 +185,7 @@
                             <input type="hidden" id="freelancer_b_email" name="freelancer_b_email">
                             <input type="hidden" id="freelancer_b_phone" name="freelancer_b_phone">
                             <input type="hidden" id="freelancer_b_address" name="freelancer_b_address">
-                            <input type="hidden" id="freelancer_b_referral_code" name="freelancer_b_referral_code">
+                            <!-- <input type="hidden" id="freelancer_b_referral_code" name="freelancer_b_referral_code"> -->
 
 
                            <div class="clear"></div>
@@ -251,4 +201,65 @@
       <!-- [ Main Content ] end -->
    </div>
 </section>
+@endsection
+@section('scripts')
+<script>
+   document.addEventListener("DOMContentLoaded", function () {
+    const plotSelect = document.getElementById("plot_select");
+    const plotIdInput = document.getElementById("plot_id");
+
+    const infoName = document.getElementById("info_name");
+    const infoSize = document.getElementById("info_size");
+    const infoLocation = document.getElementById("info_location");
+    const infoDimensions = document.getElementById("info_dimensions");
+
+    function updatePlotInfo(id, name, size, location, dimensions) {
+        plotIdInput.value = id;
+        infoName.textContent = name;
+        infoSize.textContent = size;
+        infoLocation.textContent = location;
+        infoDimensions.textContent = dimensions;
+    }
+
+    // Default: select first plot
+    if (plotSelect.options.length > 0) {
+        let firstOpt = plotSelect.options[0];
+        updatePlotInfo(
+            firstOpt.value,
+            firstOpt.dataset.plot_name,
+            firstOpt.dataset.size,
+            firstOpt.dataset.location,
+            firstOpt.dataset.dimensions
+        );
+    }
+
+    // Dropdown change
+    plotSelect.addEventListener("change", function () {
+        let opt = plotSelect.options[plotSelect.selectedIndex];
+        updatePlotInfo(
+            opt.value,
+            opt.dataset.name,
+            opt.dataset.size,
+            opt.dataset.location,
+            opt.dataset.dimensions
+        );
+    });
+
+    // Marker click
+    document.querySelectorAll(".pointer_circ").forEach(marker => {
+        marker.addEventListener("click", function () {
+           //  console.log("this.dataset " + JSON.stringify(this.dataset));
+            let plotId = this.dataset.plotId;
+            let plotName = this.dataset.plotName;
+            let plotSize = this.dataset.plotSize;
+            let plotLocation = this.dataset.plotLocation;
+            let plotDimensions = this.dataset.plotDimensions;
+
+            plotSelect.value = plotId;
+            updatePlotInfo(plotId, plotName, plotSize, plotLocation, plotDimensions);
+        });
+    });
+});
+
+</script>
 @endsection

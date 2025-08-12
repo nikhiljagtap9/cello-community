@@ -11,6 +11,7 @@ class ProjectFreelancerAssignment extends Model
         'freelancer_id',
         'plot_id',
         'role',
+        'status'
     ];
 
     public function freelancer()
