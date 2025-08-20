@@ -12,24 +12,38 @@ class FreelanceDashboardController extends Controller
 {
     public function index()
     {
-        $totalPlots = Plot::count();
-        $newPlots = Plot::whereDate('created_at', '>=', now()->subDays(7))->count();
-
-        $totalUsers = User::where('user_type', 'user')->count();
-        $newUsers = User::where('user_type', 'user')
-                        ->whereDate('created_at', '>=', now()->subDays(7))
-                        ->count();
-
-        $totalProjects = Project::count();
-        $newProjects = Project::whereDate('created_at', '>=', now()->subDays(7))->count();
-
         $user = Auth::user();
-        
+        $freelancerId = auth()->id();
+
+        // Fetch all latest 5 prospects for this freelancer
+        $prospects = User::where('parent_id', $freelancerId)
+                        ->where('user_type', 'prospect')
+                        ->with('details') // load details relation
+                        ->latest('created_at') // order by creation time descending
+                        ->take(5)
+                        ->get();
+
+        // Total invited prospects
+        $totalInvited = User::where('parent_id', $freelancerId)
+                            ->where('user_type', 'prospect')
+                            ->count();
+
+        // Prospects who have logged in at least once
+        $addedProspects = User::where('parent_id', $freelancerId)
+                            ->where('user_type', 'prospect')
+                            ->whereNotNull('last_login_at')
+                            ->count();
+
+        // Pending prospects (invited but never logged in)
+        $pendingProspects = $totalInvited - $addedProspects;
+
         return view('freelance.dashboard', compact(
-            'totalPlots', 'newPlots',
-            'totalUsers', 'newUsers',
-            'totalProjects', 'newProjects',
-            'user'
+            'user',
+            'prospects',
+            'totalInvited',
+            'addedProspects',
+            'pendingProspects'
         ));
     }
+
 }

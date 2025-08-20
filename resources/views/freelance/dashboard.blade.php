@@ -28,121 +28,78 @@
       </div>
             <!-- [ breadcrumb ] end -->
       <!-- [ Main Content ] start -->
-      <div class="row">
+       <div class="row">
          <div class="row" bis_skin_checked="1">
             
-            <div class="new_prjct_titl">New Projects for You</div>
+             
             <div class="clear"></div>
-            <div class="col-sm-6 col-xl-4" bis_skin_checked="1">
-               <div class="card statistics-card-1" bis_skin_checked="1">
-                   
-                  <div class="card-body" bis_skin_checked="1">
-                     <img src="{{ asset('freelance/assets/images/aa.jpg')}}" alt="img" class="img-fluid img-bg h-100 img_map_ind">
-                     <div class="" bis_skin_checked="1">
-                        <h3 class="f-w-300 d-flex align-items-center m-b-0">
-                           Lorem Project
-                        </small></h3>
-
-                     </div>
-
-                     <div class="clear"></div> 
-                        <div class="projct_desc">
-                           Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
-                        </div>
-                        <div class="clear"></div>
 
 
-                     <a class="btn btn-sm btn-primary plot_ad_new" href="project_detail.php">
-                     View Project
-                     </a>
-                     <div class="clear"></div>
-                  </div>
-               </div>
+            <div class="col-8">
+            <div class="card table-card">
+              <div class="card-header d-flex align-items-center justify-content-between py-3">
+                <h5 class="mb-0">Added Prospects</h5>
+                <a href="{{route('freelancer.prospects.allProspects')}}" class="btn btn-sm btn-link-primary">View All</a>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-hover" id="pc-dt-simple">
+                    <thead>
+                      <tr>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Address</th>
+                        <th>Phone</th>
+                        <th>Email ID</th>
+                       
+                      </tr>
+                    </thead>
+                    <tbody>
+                     @foreach($prospects as $prospect)
+                        <tr>
+                           <td>{{ $prospect->details->first_name ?? '' }}</td>
+                           <td>{{ $prospect->details->last_name ?? '' }}</td>
+                           <td>{{ $prospect->details->address ?? '' }}</td>
+                           <td>{{ $prospect->details->phone ?? '' }}</td>
+                           <td>{{ $prospect->email }}</td>
+                        </tr>
+                     @endforeach
+
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
+          </div>
 
-            <div class="col-sm-6 col-xl-4" bis_skin_checked="1">
-               <div class="card statistics-card-1" bis_skin_checked="1">
-                   
-                  <div class="card-body" bis_skin_checked="1">
-                     <img src="{{ asset('freelance/assets/images/aa.jpg')}}" alt="img" class="img-fluid img-bg h-100 img_map_ind">
-                     <div class="" bis_skin_checked="1">
-                        <h3 class="f-w-300 d-flex align-items-center m-b-0">
-                           Lorem Project
-                        </small></h3>
-
-                     </div>
-
-                     <div class="clear"></div> 
-                        <div class="projct_desc">
-                           Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
-                        </div>
-                        <div class="clear"></div>
-
-
-                     <a class="btn btn-sm btn-primary plot_ad_new" href="project_detail.php">
-                     View Project
-                     </a>
-                     <div class="clear"></div>
+          <div class="col-xl-4 col-md-4">
+                <div class="card social-res-card">
+                  <div class="card-header">
+                    <h5>Prospects</h5>
                   </div>
-               </div>
-            </div>
-
-            <div class="col-sm-6 col-xl-4" bis_skin_checked="1">
-               <div class="card statistics-card-1" bis_skin_checked="1">
-                   
-                  <div class="card-body" bis_skin_checked="1">
-                     <img src="{{ asset('freelance/assets/images/aa.jpg')}}" alt="img" class="img-fluid img-bg h-100 img_map_ind">
-                     <div class="" bis_skin_checked="1">
-                        <h3 class="f-w-300 d-flex align-items-center m-b-0">
-                           Lorem Project
-                        </small></h3>
-
-                     </div>
-
-                     <div class="clear"></div> 
-                        <div class="projct_desc">
-                           Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
-                        </div>
-                        <div class="clear"></div>
-
-
-                     <a class="btn btn-sm btn-primary plot_ad_new" href="project_detail.php">
-                     View Project
-                     </a>
-                     <div class="clear"></div>
+                  <div class="card-body invtd_wrp">
+                    <p class="m-b-10">Invited Prospects</p>
+                    <div class="count_main">{{ $totalInvited }}/{{ $totalInvited }}</div>
+                    <div class="clear"></div>
+                    <div class="progress m-b-25" style="height: 6px">
+                      <div class="progress-bar bg-primary" style="width: {{ $totalInvited > 0 ? 100 : 0}}%"></div>
+                    </div>
+                    <p class="m-b-10">Added Prospects</p>
+                    <div class="count_main">{{ $addedProspects }}/{{ $totalInvited }}</div>
+                    <div class="clear"></div>
+                    <div class="progress m-b-25" style="height: 6px">
+                      <div class="progress-bar bg-primary" style="width: {{$totalInvited > 0 ? ($addedProspects / $totalInvited * 100) : 0 }}%"></div>
+                    </div>
+                    <p class="m-b-10">Pending Prospects</p>
+                    <div class="count_main">{{ $pendingProspects }}/{{ $totalInvited }}</div>
+                    <div class="clear"></div>
+                    <div class="progress" style="height: 6px">
+                      <div class="progress-bar bg-primary" style="width: {{ $totalInvited > 0 ? ($pendingProspects / $totalInvited * 100) : 0 }}%"></div>
+                    </div>
                   </div>
-               </div>
-            </div>
-
-            <div class="col-sm-6 col-xl-4" bis_skin_checked="1">
-               <div class="card statistics-card-1" bis_skin_checked="1">
-                   
-                  <div class="card-body" bis_skin_checked="1">
-                     <img src="{{ asset('freelance/assets/images/aa.jpg')}}" alt="img" class="img-fluid img-bg h-100 img_map_ind">
-                     <div class="" bis_skin_checked="1">
-                        <h3 class="f-w-300 d-flex align-items-center m-b-0">
-                           Lorem Project
-                        </small></h3>
-
-                     </div>
-
-                     <div class="clear"></div> 
-                        <div class="projct_desc">
-                           Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
-                        </div>
-                        <div class="clear"></div>
-
-
-                     <a class="btn btn-sm btn-primary plot_ad_new" href="project_detail.php">
-                     View Project
-                     </a>
-                     <div class="clear"></div>
-                  </div>
-               </div>
-            </div>
-            
-         </div>
-          
+                </div>
+              </div> 
+         </div>          
       </div>
     
       <!-- [ Row 2 ] end -->
