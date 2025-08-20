@@ -89,6 +89,10 @@ class FreelanceProjectController extends Controller
         return view('freelance.pending-prospects', compact('prospects'));
     }
 
+    public function reward(){
+        return view('freelance.reward');
+    }
+
    
     /**
      * Remove the specified resource from storage.

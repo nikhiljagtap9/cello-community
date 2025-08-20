@@ -65,6 +65,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/prospects/allProspects', [FreelanceProjectController::class, 'showAllProspects'])->name('prospects.allProspects');
         Route::get('/prospects/addedProspects', [FreelanceProjectController::class, 'showAddedProspects'])->name('prospects.addedProspects');
         Route::get('/prospects/pendingProspects', [FreelanceProjectController::class, 'showPendingProspects'])->name('prospects.pendingProspects');
+        Route::get('/reward', [FreelanceProjectController::class, 'reward'])->name('reward');
     });
 
     Route::middleware(['prospect'])->group(function () {
