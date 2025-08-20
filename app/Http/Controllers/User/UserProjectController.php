@@ -44,7 +44,7 @@ class UserProjectController extends Controller
      * add project with FreeLancer A and FreeLancer B
      */
     
-    public function assignFreelancers(Request $request)
+    public function assignFreelancersOld(Request $request)
     {
         DB::transaction(function () use ($request) {
 
@@ -57,7 +57,7 @@ class UserProjectController extends Controller
                 $freelancerA = User::create([
                     'email'     => $request->freelancer_a_email,
                     'password'  => bcrypt($password),
-                    'user_type' => 'freelance',
+                    'user_type' => 'freelancer',
                     'parent_id' => auth()->id(),
                 ]);
 
@@ -87,7 +87,7 @@ class UserProjectController extends Controller
                 $freelancerB = User::create([
                     'email'     => $request->freelancer_b_email,
                     'password'  => bcrypt($password),
-                    'user_type' => 'freelance',
+                    'user_type' => 'freelancer',
                     'parent_id' => auth()->id(),
                 ]);
 
@@ -114,7 +114,70 @@ class UserProjectController extends Controller
             ->with('success', 'Freelancers assigned to the project successfully.');
     }
 
+    public function assignFreelancers(Request $request)
+    {
+        DB::transaction(function () use ($request) {
 
+            $projectId = $request->project_id; // coming from form
+            $mainUser  = auth()->user();       // logged in main user
+
+            // --- Create Freelancer A ---
+            if ($request->freelancer_a_email) {
+                $password = Str::random(8);
+                $password = '12345678'; // static or generate random
+                $freelancerA = $mainUser->addChild([
+                    'email'     => $request->freelancer_a_email,
+                    'password'  => bcrypt($password),
+                    'user_type' => 'freelancer',
+                ]);
+
+                $freelancerA->details()->create([
+                    'first_name' => $request->freelancer_a_first_name,
+                    'last_name'  => $request->freelancer_a_last_name,
+                    'phone'      => $request->freelancer_a_phone,
+                ]);
+
+                // Save assignment
+                ProjectFreelancerAssignment::create([
+                    'project_id'    => $projectId,
+                    'freelancer_id' => $freelancerA->id,
+                    'plot_id'       => $request->plot_id,
+                    'status'        => 'ongoing',
+                    'role'          => 'A'
+                ]);
+                //  Mail::to($freelancerA->email)->send(new TempPasswordMail($password));
+            }
+
+            // --- Create Freelancer B ---
+            if ($request->freelancer_b_email) {
+                $password = '12345678';
+                $freelancerB = $mainUser->addChild([
+                    'email'     => $request->freelancer_b_email,
+                    'password'  => bcrypt($password),
+                    'user_type' => 'freelancer',
+                ]);
+
+                $freelancerB->details()->create([
+                    'first_name' => $request->freelancer_b_first_name,
+                    'last_name'  => $request->freelancer_b_last_name,
+                    'phone'      => $request->freelancer_b_phone,
+                ]);
+
+                ProjectFreelancerAssignment::create([
+                    'project_id'    => $projectId,
+                    'freelancer_id' => $freelancerB->id,
+                    'plot_id'       => $request->plot_id,
+                    'status'        => 'ongoing',
+                    'role'          => 'B',
+                ]);
+
+                //  Mail::to($freelancerB->email)->send(new TempPasswordMail($password));
+            }
+        });
+
+        return redirect()->route('user.project.ongoing')
+            ->with('success', 'Freelancers assigned to the project successfully.');
+    }
 
     public function ongoingProjects()
     {

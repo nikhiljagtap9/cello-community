@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\User\UserDashboardController;
 use App\Http\Controllers\User\UserProjectController;
 use App\Http\Controllers\Freelance\FreelanceDashboardController;
+use App\Http\Controllers\Freelance\FreelanceProjectController;
 
 
 // Route::get('/', function () {
@@ -58,8 +59,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     });
 
-    Route::middleware(['auth', 'freelance'])->prefix('freelance')->name('freelance.')->group(function () {
-         Route::get('dashboard', [FreelanceDashboardController::class, 'index'])->name('dashboard');
+    Route::middleware(['auth', 'freelance'])->prefix('freelancer')->name('freelancer.')->group(function () {
+        Route::get('dashboard', [FreelanceDashboardController::class, 'index'])->name('dashboard');
+        Route::post('/prospects/addProspects', [FreelanceProjectController::class, 'addProspects'])->name('prospects.addProspects');
+        Route::get('/prospects/allProspects', [FreelanceProjectController::class, 'showAllProspects'])->name('prospects.allProspects');
+        Route::get('/prospects/addedProspects', [FreelanceProjectController::class, 'showAddedProspects'])->name('prospects.addedProspects');
+        Route::get('/prospects/pendingProspects', [FreelanceProjectController::class, 'showPendingProspects'])->name('prospects.pendingProspects');
     });
 
     Route::middleware(['prospect'])->group(function () {

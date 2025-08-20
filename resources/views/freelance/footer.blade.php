@@ -6,50 +6,49 @@
     </div>
  </div>
 
-  <div id="frelanc_pop" class="modal img_pop">
-    <div class="modal-content">
+<div id="frelanc_pop" class="modal img_pop">
+   <div class="modal-content">
       <span class="close" onclick="closeModal()">&times;</span>
-      <h2>Add Prospects</h2>
+      <h2>Add Prospect</h2>
       <div class="pop_divdr"></div>
-      <div class="clear"></div>
-      <div class="card-body" bis_skin_checked="1">
-                  <div class="row" bis_skin_checked="1">
-                     <div class="col-md-12 comn_md comn_md" bis_skin_checked="1">
-                        <form>
-                           <div class="col-md-6" bis_skin_checked="1">
-                              <label class="form-label" >First Name</label>
-                              <input type="text" class="form-control"  placeholder="Enter First Name">
-                           </div>
-                           <div class="col-md-6" bis_skin_checked="1">
-                              <label class="form-label" >Last Name</label>
-                              <input type="text" class="form-control"  placeholder="Enter Last Name">
-                           </div>
-                           
-                           <div class="col-md-6" bis_skin_checked="1">
-                              <label class="form-label" >Address</label>
-                              <input type="text" class="form-control"  placeholder="Enter Address">
-                           </div>
-                           <div class="col-md-6" bis_skin_checked="1">
-                              <label class="form-label" >Phone</label>
-                              <input type="text" class="form-control"  placeholder="Enter Phone">
-                           </div>
-                           <div class="col-md-6" bis_skin_checked="1">
-                              <label class="form-label" >Email ID</label>
-                              <input type="text" class="form-control"  placeholder="Enter Email ID">
-                           </div>
+      <div class="card-body">
+         <form id="prospect_form" onsubmit="event.preventDefault(); saveProspectData();">
+         <div class="row">
+             <div id="modal_message" class="mt-3"></div>
+            <div class="col-md-6">
+               <label class="form-label">First Name</label>
+               <input type="text" id="modal_first_name" class="form-control" name="first_name" placeholder="Enter First Name">
+               <small id="modal_first_name_error" class="text-danger"></small>
+            </div>
+            <div class="col-md-6">
+               <label class="form-label">Last Name</label>
+               <input type="text" id="modal_last_name" class="form-control" name="last_name" placeholder="Enter Last Name">
+               <small id="modal_last_name_error" class="text-danger"></small>
+            </div> 
+            <div class="col-md-6">
+               <label class="form-label">Address</label>
+               <input type="text" id="modal_address" class="form-control" name="address" placeholder="Enter Address">
+               <small id="modal_address_error" class="text-danger"></small>
+            </div>
+            <div class="col-md-6">
+               <label class="form-label">Phone</label>
+               <input type="text" id="modal_phone" class="form-control" name="phone" placeholder="Enter Phone">
+               <small id="modal_phone_error" class="text-danger"></small>
+            </div>
+            <div class="col-md-6">
+               <label class="form-label">Email ID</label>
+               <input type="email" id="modal_email" class="form-control" name="email" placeholder="Enter Email ID">
+               <small id="modal_email_error" class="text-danger"></small>
+            </div>
+         </div>
 
-                           <div class="clear"></div>
-                          
-                           
-                           <div class="clear"></div>
+         <button type="submit" class="btn btn-primary mt-3">Add Prospect</button>
+        
+         </form>
+      </div>
+   </div>
+</div>
 
-                           <button type="submit" class="btn btn-primary mb-4 submi_movi submi_movi_pop"  >Add Prospects</button>
-                        </form>
-                     </div>
-                  </div>
-               </div>
-    </div>
- </div>
 
   <script>
     // Open Modal
@@ -63,13 +62,6 @@
       document.getElementById("myModal_img").style.display = "none";
     }
 
-    // Close if clicked outside modal content
-    window.onclick = function(event) {
-      let modal = document.getElementById("myModal_img");
-      if (event.target === modal) {
-        closeModal_img();
-      }
-    }
   </script>
 
     <script>
@@ -92,53 +84,69 @@
       document.querySelectorAll('#freelancer_modal small.text-danger').forEach(el => el.textContent = '');
    }
 
-    // Close if clicked outside modal content
-    window.onclick = function(event) {
-      let modal = document.getElementById("frelanc_pop");
-      if (event.target === modal) {
-        closeModal();
+   // Close modal if clicked outside
+   window.onclick = function(event) {
+      let modalImg = document.getElementById("myModal_img");
+      let modalProspect = document.getElementById("frelanc_pop");
+
+      if (event.target === modalImg) {
+         closeModal_img();
       }
-    }
-
-    function saveFreelancerData() {
-      let type = document.getElementById('freelancer_type').value;
-      let firstName = document.getElementById('modal_first_name').value.trim();
-      let lastName = document.getElementById('modal_last_name').value.trim();
-      let email = document.getElementById('modal_email').value.trim();
-      let phone = document.getElementById('modal_phone').value.trim();
-      let address = document.getElementById('modal_address').value.trim();
-
-      let valid = true;
-      clearModalErrors();
-
-      if (!firstName) { document.getElementById('modal_first_name_error').textContent = "First name is required"; valid = false; }
-      if (!lastName) { document.getElementById('modal_last_name_error').textContent = "Last name is required"; valid = false; }
-      if (!email) { document.getElementById('modal_email_error').textContent = "Email is required"; valid = false; }
-      if (!phone) { document.getElementById('modal_phone_error').textContent = "Phone is required"; valid = false; }
-      if (!address) { document.getElementById('modal_address_error').textContent = "Address is required"; valid = false; }
-
-      if (!valid) return;
-
-      if (type === 'A') {
-         document.getElementById('freelancer_a_first_name').value = document.getElementById('modal_first_name').value;
-         document.getElementById('freelancer_a_last_name').value = document.getElementById('modal_last_name').value;
-         document.getElementById('freelancer_a_email').value = document.getElementById('modal_email').value;
-         document.getElementById('freelancer_a_phone').value = document.getElementById('modal_phone').value;
-         document.getElementById('freelancer_a_address').value = document.getElementById('modal_address').value;
-         document.getElementById('freelancer_a_referral_code"').value = document.getElementById('modal_referral_code').value;
-      } 
-      else if (type === 'B') {
-         document.getElementById('freelancer_b_first_name').value = document.getElementById('modal_first_name').value;
-         document.getElementById('freelancer_b_last_name').value = document.getElementById('modal_last_name').value;
-         document.getElementById('freelancer_b_email').value = document.getElementById('modal_email').value;
-         document.getElementById('freelancer_b_phone').value = document.getElementById('modal_phone').value;
-         document.getElementById('freelancer_b_address').value = document.getElementById('modal_address').value;
-         document.getElementById('freelancer_b_referral_code"').value = document.getElementById('modal_referral_code').value;
+      if (event.target === modalProspect) {
+         closeModal();
       }
-
-       closeModal();
    }
-  </script>
+
+   // Save Prospect Data (AJAX submit)
+   function saveProspectData() {
+      var form = $('#prospect_form');
+      var formData = form.serialize(); // Serialize form data
+
+      // Clear old errors and messages
+      $('.text-danger').text('');
+      $('#modal_message').html('').removeClass();
+
+      $.ajax({
+         url: "{{ route('freelancer.prospects.addProspects') }}",
+         type: "POST",
+         data: formData,
+         headers: {
+               'X-CSRF-TOKEN': '{{ csrf_token() }}'
+         },
+         success: function(data) {
+               if (data.success) {
+                  // Show success message
+                  $('#modal_message').addClass('alert alert-success').text(data.message);
+                  form[0].reset(); // Reset form
+
+                  // Hide message after 3 seconds
+                  setTimeout(function() {
+                     $('#modal_message').html('').removeClass();
+                     closeModal(); // Close modal
+                  }, 3000);
+               }
+         },
+         error: function(xhr) {
+               if (xhr.status === 422) {
+                  // Validation errors
+                  var errors = xhr.responseJSON.errors;
+                  $.each(errors, function(field, messages) {
+                     $('#modal_' + field + '_error').text(messages[0]);
+                  });
+               } else {
+                  // Generic error
+                  $('#modal_message').addClass('alert alert-danger').text('Something went wrong!');
+                  setTimeout(function() {
+                     $('#modal_message').html('').removeClass();
+                  }, 3000);
+               }
+         }
+      });
+   }
+
+
+
+</script>
 
 
   <footer class="pc-footer">

@@ -45,7 +45,7 @@
       <nav class="pc-sidebar">
          <div class="navbar-wrapper">
             <div class="m-header">
-               <a href="{{route('freelance.dashboard')}}" class="b-brand text-primary">
+               <a href="{{route('freelancer.dashboard')}}" class="b-brand text-primary">
                   <!-- ========   Change your logo from here   ============ -->
                   <img src="{{ asset('freelance/assets/images/Logo.png')}}"  alt="logo image" class="main_logo" /> 
                </a>
@@ -54,7 +54,7 @@
                <div class="clear"></div>
                <ul class="pc-navbar">
                <li class="pc-item pc-hasmenu activ_dash">
-                  <a href="{{route('freelance.dashboard')}}" class="pc-link">
+                  <a href="{{route('freelancer.dashboard')}}" class="pc-link">
                   <span class="pc-micon">
                   <i class="ph-duotone ph-gauge"></i>
                   </span>
@@ -75,7 +75,7 @@
                </li>
 
                <li class="pc-item pc-hasmenu ">
-                  <a href="view_prospects.php" class="pc-link">
+                  <a href="{{route('freelancer.prospects.allProspects')}}" class="pc-link">
                      <span class="pc-micon">
                         <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-users"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 7m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" /><path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /><path d="M21 21v-2a4 4 0 0 0 -3 -3.85" /></svg>
                      </span>
@@ -86,7 +86,7 @@
                  
 
                 <li class="pc-item pc-hasmenu ">
-                  <a href="added_prospects.php" class="pc-link">
+                  <a href="{{route('freelancer.prospects.addedProspects')}}" class="pc-link">
                      <span class="pc-micon">
                         <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-users-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" /><path d="M3 21v-2a4 4 0 0 1 4 -4h4c.96 0 1.84 .338 2.53 .901" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /><path d="M16 19h6" /><path d="M19 16v6" /></svg>
                      </span>
@@ -96,7 +96,7 @@
 
 
                 <li class="pc-item pc-hasmenu ">
-                  <a href="pending_prospects.php" class="pc-link">
+                  <a href="{{route('freelancer.prospects.pendingProspects')}}" class="pc-link">
                      <span class="pc-micon">
                         <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-user-pause"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" /><path d="M6 21v-2a4 4 0 0 1 4 -4h3.5" /><path d="M17 17v5" /><path d="M21 17v5" /></svg>
                      </span>

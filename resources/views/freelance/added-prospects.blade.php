@@ -1,0 +1,188 @@
+@extends('freelance.main')
+
+@section('content')
+<section class="pc-container">
+   <div class="pc-content">
+      <!-- [ breadcrumb ] start -->
+      <!-- [ breadcrumb ] end -->
+      <div class="row">
+         <div class="col-sm-12">
+            <div class="card">
+               <div class="card-header">
+                  <h5>
+                     <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-users-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" /><path d="M3 21v-2a4 4 0 0 1 4 -4h4c.96 0 1.84 .338 2.53 .901" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /><path d="M16 19h6" /><path d="M19 16v6" /></svg>
+                     Added Prospects
+                  </h5>
+               </div>
+               <div class="card-body">
+                  <div class="table-responsive">
+                     <table id="row-callback" class="table table-striped table-bordered nowrap">
+                        <thead>
+                            <tr>
+                                <th>First Name</th>
+                                <th>Last Name</th>
+                                <th>Address</th>
+                                <th>Phone</th>
+                                <th>Email ID</th>
+                                <th>Status</th>     
+                            </tr>
+                        </thead>
+                        <tbody>
+                           @foreach($prospects as $prospect)
+                            <tr>
+                                <td>{{ $prospect->details->first_name ?? '' }}</td>
+                                <td>{{ $prospect->details->last_name ?? '' }}</td>
+                                <td>{{ $prospect->details->address ?? '' }}</td>
+                                <td>{{ $prospect->details->phone ?? '' }}</td>
+                                <td>{{ $prospect->email }}</td>
+                                <td><span class="badge text-bg-success">Added</span></td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                     </table>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+      <!-- [ Main Content ] end -->
+   </div>
+</section>
+@endsection
+@section('scripts')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="{{ asset('freelance/assets/js/plugins/dataTables.min.js')}}"></script>
+<script src="{{ asset('freelance/assets/js/plugins/dataTables.bootstrap5.min.js')}}"></script>
+<script>
+   // [ DOM/jquery ]
+   var total, pageTotal;
+   var table = $('#dom-jqry').DataTable();
+   // [ column Rendering ]
+   $('#colum-render').DataTable({
+     columnDefs: [
+       {
+         render: function (data, type, row) {
+           return data + ' (' + row[3] + ')';
+         },
+         targets: 0
+       },
+       {
+         visible: false,
+         targets: [3]
+       }
+     ]
+   });
+   // [ Multiple Table Control Elements ]
+   $('#multi-table').DataTable({
+     dom: '<"top"iflp<"clear">>rt<"bottom"iflp<"clear">>'
+   });
+   // [ Complex Headers With Column Visibility ]
+   $('#complex-header').DataTable({
+     columnDefs: [
+       {
+         visible: false,
+         targets: -1
+       }
+     ]
+   });
+   // [ Language file ]
+   $('#lang-file').DataTable({
+     language: {
+       url: '//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/German.json'
+     }
+   });
+   // [ Setting Defaults ]
+   $('#setting-default').DataTable();
+   // [ Row Grouping ]
+   var table1 = $('#row-grouping').DataTable({
+     columnDefs: [
+       {
+         visible: false,
+         targets: 2
+       }
+     ],
+     order: [[2, 'asc']],
+     displayLength: 25,
+     drawCallback: function (settings) {
+       var api = this.api();
+       var rows = api
+         .rows({
+           page: 'current'
+         })
+         .nodes();
+       var last = null;
+   
+       api
+         .column(2, {
+           page: 'current'
+         })
+         .data()
+         .each(function (group, i) {
+           if (last !== group) {
+             $(rows)
+               .eq(i)
+               .before('<tr class="group"><td colspan="5">' + group + '</td></tr>');
+   
+             last = group;
+           }
+         });
+     }
+   });
+   // [ Order by the grouping ]
+   $('#row-grouping tbody').on('click', 'tr.group', function () {
+     var currentOrder = table.order()[0];
+     if (currentOrder[0] === 2 && currentOrder[1] === 'asc') {
+       table.order([2, 'desc']).draw();
+     } else {
+       table.order([2, 'asc']).draw();
+     }
+   });
+   // [ Footer callback ]
+   $('#footer-callback').DataTable({
+     footerCallback: function (row, data, start, end, display) {
+       var api = this.api(),
+         data;
+   
+       // Remove the formatting to get integer data for summation
+       var intVal = function (i) {
+         return typeof i === 'string' ? i.replace(/[\$,]/g, '') * 1 : typeof i === 'number' ? i : 0;
+       };
+   
+       // Total over all pages
+       total = api
+         .column(4)
+         .data()
+         .reduce(function (a, b) {
+           return intVal(a) + intVal(b);
+         }, 0);
+   
+       // Total over this page
+       pageTotal = api
+         .column(4, {
+           page: 'current'
+         })
+         .data()
+         .reduce(function (a, b) {
+           return intVal(a) + intVal(b);
+         }, 0);
+   
+       // Update footer
+       $(api.column(4).footer()).html('$' + pageTotal + ' ( $' + total + ' total)');
+     }
+   });
+   // [ Custom Toolbar Elements ]
+   $('#c-tool-ele').DataTable({
+     dom: '<"toolbar">frtip'
+   });
+   // [ Custom Toolbar Elements ]
+   $('div.toolbar').html('<b>Custom tool bar! Text/images etc.</b>');
+   // [ custom callback ]
+   $('#row-callback').DataTable({
+     createdRow: function (row, data, index) {
+       if (data[5].replace(/[\$,]/g, '') * 1 > 150000) {
+         $('td', row).eq(5).addClass('highlight');
+       }
+     }
+   });
+</script>
+@endsection

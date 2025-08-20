@@ -37,7 +37,7 @@
                <div class="card statistics-card-1" bis_skin_checked="1">
                    
                   <div class="card-body" bis_skin_checked="1">
-                     <img src="assets/images/aa.jpg" alt="img" class="img-fluid img-bg h-100 img_map_ind">
+                     <img src="{{ asset('freelance/assets/images/aa.jpg')}}" alt="img" class="img-fluid img-bg h-100 img_map_ind">
                      <div class="" bis_skin_checked="1">
                         <h3 class="f-w-300 d-flex align-items-center m-b-0">
                            Lorem Project
@@ -64,7 +64,7 @@
                <div class="card statistics-card-1" bis_skin_checked="1">
                    
                   <div class="card-body" bis_skin_checked="1">
-                     <img src="assets/images/aa.jpg" alt="img" class="img-fluid img-bg h-100 img_map_ind">
+                     <img src="{{ asset('freelance/assets/images/aa.jpg')}}" alt="img" class="img-fluid img-bg h-100 img_map_ind">
                      <div class="" bis_skin_checked="1">
                         <h3 class="f-w-300 d-flex align-items-center m-b-0">
                            Lorem Project
@@ -91,7 +91,7 @@
                <div class="card statistics-card-1" bis_skin_checked="1">
                    
                   <div class="card-body" bis_skin_checked="1">
-                     <img src="assets/images/aa.jpg" alt="img" class="img-fluid img-bg h-100 img_map_ind">
+                     <img src="{{ asset('freelance/assets/images/aa.jpg')}}" alt="img" class="img-fluid img-bg h-100 img_map_ind">
                      <div class="" bis_skin_checked="1">
                         <h3 class="f-w-300 d-flex align-items-center m-b-0">
                            Lorem Project
@@ -118,7 +118,7 @@
                <div class="card statistics-card-1" bis_skin_checked="1">
                    
                   <div class="card-body" bis_skin_checked="1">
-                     <img src="assets/images/aa.jpg" alt="img" class="img-fluid img-bg h-100 img_map_ind">
+                     <img src="{{ asset('freelance/assets/images/aa.jpg')}}" alt="img" class="img-fluid img-bg h-100 img_map_ind">
                      <div class="" bis_skin_checked="1">
                         <h3 class="f-w-300 d-flex align-items-center m-b-0">
                            Lorem Project

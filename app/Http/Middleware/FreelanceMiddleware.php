@@ -9,7 +9,7 @@ class FreelanceMiddleware
 {
     public function handle(Request $request, Closure $next)
     {
-        if (auth()->check() && auth()->user()->user_type === 'freelance') {
+        if (auth()->check() && auth()->user()->user_type === 'freelancer') {
             return $next($request);
         }
 

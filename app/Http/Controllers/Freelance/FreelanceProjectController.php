@@ -12,132 +12,81 @@ use App\Models\UserDetail;
 use App\Models\Project;
 use App\Models\ProjectFreelancerAssignment;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
+
 
 
 class FreelanceProjectController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function newProjects()
+    // Add this method:
+    public function addProspects(Request $request)
     {
-        $userId = auth()->id();
+        $validated = $request->validate([
+            'first_name' => 'required|string|max:100',
+            'last_name'  => 'required|string|max:100',
+            'email'      => 'required|email|unique:users,email',
+            'phone'      => 'required|string|max:20',
+            'address'    => 'required|string|max:255',
+        ]);
 
-        // Fetch projects assigned to the logged-in user
-        $projects = Project::where('user_id', $userId)
-            ->whereNull('deleted_at') // skip soft deleted
-            ->latest()
-            ->get();
+        $freelancer = User::find(Auth::id());
 
-        return view('user.project.new', compact('projects'));
+        $prospect = $freelancer->addChild([
+            'email'     => $validated['email'],
+            'password'  => bcrypt('secret'),
+            'user_type' => 'prospect',
+        ]);
+
+        $prospect->details()->create([
+            'first_name' => $validated['first_name'],
+            'last_name'  => $validated['last_name'],
+            'phone'      => $validated['phone'],
+            'address'    => $validated['address'],
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Prospect added successfully!']);
     }
 
-    public function show($id)
+    public function showAllProspects()
     {
-        $project = Project::with('plots')->findOrFail($id);
+        $freelancerId = auth()->id();
 
-        return view('user.project.show', compact('project'));
+        // Fetch all prospects for this freelancer
+        $prospects = User::where('parent_id', $freelancerId)
+                        ->where('user_type', 'prospect')
+                        ->with('details') // load details relation
+                        ->get();
+
+        return view('freelance.all-prospects', compact('prospects'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     * add project with FreeLancer A and FreeLancer B
-     */
-    
-    public function assignFreelancers(Request $request)
+    public function showAddedProspects()
     {
-        DB::transaction(function () use ($request) {
+        $freelancerId = auth()->id();
 
-            $projectId = $request->project_id; // coming from form
+        // Fetch only prospects who have logged in (last_login_at not null)
+        $prospects = User::where('parent_id', $freelancerId)
+                        ->where('user_type', 'prospect')
+                        ->whereNotNull('last_login_at')  // only logged-in prospects
+                        ->with('details') // load details relation
+                        ->get();
 
-            // --- Create Freelancer A ---
-            if ($request->freelancer_a_email) {
-                $password = Str::random(8);
-                $password = 'niksjagtap';
-                $freelancerA = User::create([
-                    'email'     => $request->freelancer_a_email,
-                    'password'  => bcrypt($password),
-                    'user_type' => 'freelance',
-                    'parent_id' => auth()->id(),
-                ]);
-
-                UserDetail::create([
-                    'user_id'    => $freelancerA->id,
-                    'first_name' => $request->freelancer_a_first_name,
-                    'last_name'  => $request->freelancer_a_last_name,
-                    'phone'      => $request->freelancer_a_phone,
-                ]);
-
-                // Save assignment
-                ProjectFreelancerAssignment::create([
-                    'project_id'    => $projectId,
-                    'freelancer_id' => $freelancerA->id,
-                    'plot_id'       => $request->plot_a_id, // selected plot for A
-                    'role'          => 'A',
-                    'status'          => 'ongoing',
-                ]);
-
-              //  Mail::to($freelancerA->email)->send(new TempPasswordMail($password));
-            }
-
-            // --- Create Freelancer B ---
-            if ($request->freelancer_b_email) {
-                $password = Str::random(8);
-                $password = 'niksjagtap';
-                $freelancerB = User::create([
-                    'email'     => $request->freelancer_b_email,
-                    'password'  => bcrypt($password),
-                    'user_type' => 'freelance',
-                    'parent_id' => auth()->id(),
-                ]);
-
-                UserDetail::create([
-                    'user_id'    => $freelancerB->id,
-                    'first_name' => $request->freelancer_b_first_name,
-                    'last_name'  => $request->freelancer_b_last_name,
-                    'phone'      => $request->freelancer_b_phone,
-                ]);
-
-                ProjectFreelancerAssignment::create([
-                    'project_id'    => $projectId,
-                    'freelancer_id' => $freelancerB->id,
-                    'plot_id'       => $request->plot_b_id,
-                    'role'          => 'B',
-                    'status'          => 'ongoing',
-                ]);
-
-              //  Mail::to($freelancerB->email)->send(new TempPasswordMail($password));
-            }
-        });
-
-        return redirect()->route('user.project.ongoing')
-            ->with('success', 'Freelancers assigned to the project successfully.');
+        return view('freelance.added-prospects', compact('prospects'));
     }
 
 
-
-    public function ongoingProjects()
+     public function showPendingProspects()
     {
-        $projects = Project::where('user_id', auth()->id()) // main user who owns the project
-            ->whereHas('freelancerAssignments', function ($query) {
-                $query->where('status', 'ongoing');
-            })
-            ->get();
+        $freelancerId = auth()->id();
 
-        return view('user.project.ongoing', compact('projects'));
-    }
+        // Fetch only prospects who have logged in (last_login_at not null)
+        $prospects = User::where('parent_id', $freelancerId)
+                        ->where('user_type', 'prospect')
+                        ->whereNull('last_login_at')  // only logged-in prospects
+                        ->with('details') // load details relation
+                        ->get();
 
-    public function detail($id)
-    {
-        $project = Project::with([
-            'plots',
-            'freelancerAssignments.freelancer',
-           // 'freelancerAssignments.invitedUsers'
-        ])
-        ->where('id', $id)
-        ->firstOrFail();
-
-        return view('user.project.details', compact('project'));
+        return view('freelance.pending-prospects', compact('prospects'));
     }
 
    
