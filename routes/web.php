@@ -10,6 +10,8 @@ use App\Http\Controllers\User\UserDashboardController;
 use App\Http\Controllers\User\UserProjectController;
 use App\Http\Controllers\Freelance\FreelanceDashboardController;
 use App\Http\Controllers\Freelance\FreelanceProjectController;
+use App\Http\Controllers\Prospect\ProspectDashboardController;
+use App\Http\Controllers\Prospect\ProspectProjectController;
 
 
 // Route::get('/', function () {
@@ -19,6 +21,12 @@ use App\Http\Controllers\Freelance\FreelanceProjectController;
 Route::get('/', function () {
     return view('auth.login');
 })->name('login');
+
+// for temp used
+Route::get('/logout', function () {
+    Auth::logout();
+    return redirect('/');
+});
 
 // Route::get('/dashboard', function () {
 //     return view('dashboard');
@@ -68,10 +76,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/reward', [FreelanceProjectController::class, 'reward'])->name('reward');
     });
 
-    Route::middleware(['prospect'])->group(function () {
-        Route::get('/prospect/dashboard', function () {
-            return view('prospect.dashboard');
-        })->name('prospect.dashboard');
+    Route::middleware(['auth', 'prospect'])->prefix('prospect')->name('prospect.')->group(function () {
+        Route::get('dashboard', [ProspectDashboardController::class, 'index'])->name('dashboard');
+        Route::get('add', [ProspectProjectController::class, 'add'])->name('add'); // add freelancer form
+        Route::post('addFreelancer', [ProspectProjectController::class, 'addFreelancer'])->name('addFreelancer');
+        Route::get('/{id}/prospects', [ProspectProjectController::class, 'allProspects'])
+            ->name('allProspects');
     });
 
     // Optional default route

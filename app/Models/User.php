@@ -83,6 +83,13 @@ class User extends Authenticatable
         return $this->children()->where('user_type', 'sub_freelancer');
     }
 
+
+    // sub prospects under sub freelancer
+    public function subProspects()
+    {
+        return $this->children()->where('user_type', 'sub_prospect');
+    }
+
     /* ----------------------
      | Business Rules
      ---------------------- */

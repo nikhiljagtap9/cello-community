@@ -150,6 +150,7 @@ class UserProjectController extends Controller
 
             // --- Create Freelancer B ---
             if ($request->freelancer_b_email) {
+                $password = Str::random(8);
                 $password = '12345678';
                 $freelancerB = $mainUser->addChild([
                     'email'     => $request->freelancer_b_email,

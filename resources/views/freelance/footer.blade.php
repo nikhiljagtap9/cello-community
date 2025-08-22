@@ -127,20 +127,34 @@
                }
          },
          error: function(xhr) {
-               if (xhr.status === 422) {
-                  // Validation errors
-                  var errors = xhr.responseJSON.errors;
-                  $.each(errors, function(field, messages) {
+            if (xhr.status === 422) {
+               // Validation errors
+               var errors = xhr.responseJSON.errors;
+               $.each(errors, function(field, messages) {
                      $('#modal_' + field + '_error').text(messages[0]);
-                  });
+               });
+            } else {
+               // Show actual error message
+               var errorMessage = '';
+
+               if (xhr.responseJSON && xhr.responseJSON.message) {
+                     errorMessage = xhr.responseJSON.message; // Laravel JSON error
+               } else if (xhr.responseText) {
+                     errorMessage = xhr.responseText; // fallback if HTML/plain text
                } else {
-                  // Generic error
-                  $('#modal_message').addClass('alert alert-danger').text('Something went wrong!');
-                  setTimeout(function() {
-                     $('#modal_message').html('').removeClass();
-                  }, 3000);
+                     errorMessage = 'Unexpected error occurred!';
                }
+
+               $('#modal_message')
+                     .addClass('alert alert-danger')
+                     .text(errorMessage);
+
+               setTimeout(function() {
+                     $('#modal_message').html('').removeClass();
+               }, 5000);
+            }
          }
+
       });
    }
 
@@ -160,16 +174,16 @@
          </div>
       </footer>
       <!-- Required Js -->
-      <script src="{{ asset('user/assets/js/plugins/popper.min.js')}}"></script>
-      <script src="{{ asset('user/assets/js/plugins/simplebar.min.js')}}"></script>
-      <script src="{{ asset('user/assets/js/plugins/bootstrap.min.js')}}"></script>
-      <script src="{{ asset('user/assets/js/plugins/i18next.min.js')}}"></script>
-      <script src="{{ asset('user/assets/js/plugins/i18nextHttpBackend.min.js')}}"></script>
-      <script src="{{ asset('user/assets/js/icon/custom-font.js')}}"></script>
-      <script src="{{ asset('user/assets/js/script.js')}}"></script>
-      <script src="{{ asset('user/assets/js/theme.js')}}"></script>
-      <script src="{{ asset('user/assets/js/multi-lang.js')}}"></script>
-      <script src="{{ asset('user/assets/js/plugins/feather.min.js')}}"></script>
+      <script src="{{ asset('freelance/assets/js/plugins/popper.min.js')}}"></script>
+      <script src="{{ asset('freelance/assets/js/plugins/simplebar.min.js')}}"></script>
+      <script src="{{ asset('freelance/assets/js/plugins/bootstrap.min.js')}}"></script>
+      <script src="{{ asset('freelance/assets/js/plugins/i18next.min.js')}}"></script>
+      <script src="{{ asset('freelance/assets/js/plugins/i18nextHttpBackend.min.js')}}"></script>
+      <script src="{{ asset('freelance/assets/js/icon/custom-font.js')}}"></script>
+      <script src="{{ asset('freelance/assets/js/script.js')}}"></script>
+      <script src="{{ asset('freelance/assets/js/theme.js')}}"></script>
+      <script src="{{ asset('freelance/assets/js/multi-lang.js')}}"></script>
+      <script src="{{ asset('freelance/assets/js/plugins/feather.min.js')}}"></script>
       <script>
          layout_change('light');
       </script>

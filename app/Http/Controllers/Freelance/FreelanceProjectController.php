@@ -29,12 +29,17 @@ class FreelanceProjectController extends Controller
             'address'    => 'required|string|max:255',
         ]);
 
-        $freelancer = User::find(Auth::id());
+        $freelancer = Auth::user();
+        // Determine child user_type based on parent
+        $childUserType = $freelancer->user_type === 'freelancer' ? 'prospect' : 'sub_prospect';
+
+        $password = Str::random(8);
+        $password = '12345678';
 
         $prospect = $freelancer->addChild([
             'email'     => $validated['email'],
-            'password'  => bcrypt('secret'),
-            'user_type' => 'prospect',
+            'password'  => bcrypt($password),
+            'user_type' => $childUserType,
         ]);
 
         $prospect->details()->create([
@@ -49,12 +54,17 @@ class FreelanceProjectController extends Controller
 
     public function showAllProspects()
     {
-        $freelancerId = auth()->id();
+        $user = Auth::user();
+        $freelancerId = $user->id;
+
+        // Determine child user_type based on parent
+        $childUserType = $user->user_type === 'freelancer' ? 'prospect' : 'sub_prospect';
 
         // Fetch all prospects for this freelancer
         $prospects = User::where('parent_id', $freelancerId)
-                        ->where('user_type', 'prospect')
+                        ->where('user_type', $childUserType)
                         ->with('details') // load details relation
+                        ->latest('created_at') // show most recent first
                         ->get();
 
         return view('freelance.all-prospects', compact('prospects'));
@@ -62,11 +72,15 @@ class FreelanceProjectController extends Controller
 
     public function showAddedProspects()
     {
-        $freelancerId = auth()->id();
+        $user = Auth::user();
+        $freelancerId = $user->id;
 
-        // Fetch only prospects who have logged in (last_login_at not null)
+        // Determine child user_type based on parent
+        $childUserType = $user->user_type === 'freelancer' ? 'prospect' : 'sub_prospect';
+
+        // Fetch all prospects for this freelancer
         $prospects = User::where('parent_id', $freelancerId)
-                        ->where('user_type', 'prospect')
+                        ->where('user_type', $childUserType)
                         ->whereNotNull('last_login_at')  // only logged-in prospects
                         ->with('details') // load details relation
                         ->get();
@@ -77,11 +91,15 @@ class FreelanceProjectController extends Controller
 
      public function showPendingProspects()
     {
-        $freelancerId = auth()->id();
+        $user = Auth::user();
+        $freelancerId = $user->id;
+
+        // Determine child user_type based on parent
+        $childUserType = $user->user_type === 'freelancer' ? 'prospect' : 'sub_prospect';
 
         // Fetch only prospects who have logged in (last_login_at not null)
         $prospects = User::where('parent_id', $freelancerId)
-                        ->where('user_type', 'prospect')
+                        ->where('user_type', $childUserType)
                         ->whereNull('last_login_at')  // only logged-in prospects
                         ->with('details') // load details relation
                         ->get();
