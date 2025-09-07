@@ -65,6 +65,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/project/{project}/plot/{plot}/assignments', [UserProjectController::class, 'getPlotAssignments'])
             ->name('project.plot.assignments');
         Route::post('/assign-plot', [UserProjectController::class, 'assignPlot'])->name('assignPlot');
+      //  Route::get('/project/{projectId}/assignments', [UserProjectController::class, 'getAssignmentsByProject']);
+        Route::get('/project/{project}/assignments/{wing}', [UserProjectController::class, 'getAssignmentsByWing'])
+    ->name('project.assignments');
     
 
     });

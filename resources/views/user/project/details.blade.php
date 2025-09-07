@@ -20,11 +20,11 @@
                   <div class="" bis_skin_checked="1">
                      <div class="comn_md comn_md" bis_skin_checked="1">
                         <form>
-                           <div class="col-md-4" bis_skin_checked="1"> 
+                           <!-- <div class="col-md-4" bis_skin_checked="1"> 
                               <label class="form-label" >Selected Plot</label> 
                                <input type="text" id="selectedPlotName" class="form-control projct_detl" readonly 
            value="">
-                           </div>
+                           </div> -->
                            <div class="map_wrap 603">
                               <div class="map_wrap_inner">
                                  <div class="map_pointer">
@@ -120,12 +120,12 @@
                                                   <div class="col-md-12 plot_detl" bis_skin_checked="1">
                                                    <label class="form-label" ></label> 
                                                    <select class="form-control" id="plotSelect">
-                                                      <option value="">-- Select Plot --</option>
-                                                         @foreach($project->plots as $index => $plot)
-                                                            <option value="{{ $plot->id }}" data-name="{{ ucfirst($plot->plot_name) }}" {{ $index === 0 ? 'selected' : '' }}>
-                                                               {{ ucfirst($plot->plot_name) }}
-                                                            </option>
-                                                         @endforeach
+                                                      <option value="">-- Select Wing --</option>
+                                                      @foreach($wings as $index => $wing)
+                                                         <option value="{{ $wing->id }}" data-name="{{ ucfirst($wing->plot_label) }}" {{ $index === 0 ? 'selected' : '' }}>
+                                                               {{ ucfirst($wing->plot_label) }}
+                                                         </option>
+                                                      @endforeach
                                                    </select>
                                                 </div>
 
@@ -165,50 +165,14 @@
                               </div>
                            </div>
                            <div class="clear"></div>
-                           <div id="freelancerList"></div>
+                           <!-- <div id="freelancerList"></div> -->
                            <div class="clear"></div>
                         </form>
-                        @php
-$printedUsers = []; // keep track of displayed user IDs
-
-function renderUsers($users, $availablePlots, &$printedUsers, $level = 1) {
-    foreach($users as $user) {
-        if(in_array($user->id, $printedUsers)) continue; // skip duplicates
-        $printedUsers[] = $user->id;
-
-        echo '<tr>';
-        echo '<td>' . $user->details->first_name . '</td>';
-        echo '<td>' . $user->details->last_name . '</td>';
-        echo '<td>' . $user->details->address . '</td>';
-        echo '<td>' . $user->details->phone . '</td>';
-        echo '<td>' . $user->email . '</td>';
-        echo '<td>' . ($user->parent ? $user->parent->details->first_name : 'N/A') . '</td>';
-        echo '<td>' . ($user->parent ? $user->parent->details->last_name : '') . '</td>';
-        echo '<td>
-                <form action="' . route('user.assignPlot') . '" method="POST">
-                    ' . csrf_field() . '
-                    <input type="hidden" name="user_id" value="' . $user->id . '">
-                    <select name="plot_id" class="form-control" required>
-                        <option value="">Select Plot</option>';
-                        foreach($availablePlots as $plot) {
-                            echo '<option value="' . $plot->id . '">' . $plot->plot_name . '</option>';
-                        }
-        echo '      </select>
-                    <button type="submit" class="btn btn-sm btn-primary mt-1">Assign</button>
-                </form>
-              </td>';
-        echo '</tr>';
-
-        if($user->children && $user->children->count()) {
-            renderUsers($user->children, $availablePlots, $printedUsers, $level + 1);
-        }
-    }
-}
-@endphp
+                      
                         <!-- invited user -->
                         <div class="card-body">
                            <div class="table-responsive">
-                              <table id="row-callback" class="table table-striped table-bordered nowrap">
+                              <table id="row-callback1" class="table table-striped table-bordered nowrap">
                                  <thead>
                                     <tr>
                                        <th>First Name</th>
@@ -221,41 +185,8 @@ function renderUsers($users, $availablePlots, &$printedUsers, $level = 1) {
                                        <th>Assign Plot</th>     
                                     </tr>
                                  </thead>
-                                 <tbody>
-                                     @foreach($assignments as $assignment)
-            
-            @php
-                renderUsers($assignment->user->children, $availablePlots, $printedUsers, 1);
-            @endphp
-        @endforeach
-                               
-                                    <!-- @foreach($project->freelancerAssignments as $assignment)
-                                          @foreach($assignment->invitedUsers as $user)
-                                             <tr>
-                                                <td>{{ $user->details->first_name }}</td>
-                                                <td>{{ $user->details->last_name }}</td>
-                                                <td>{{ $user->details->address }}</td>
-                                                <td>{{ $user->details->phone }}</td>
-                                                <td>{{ $user->email }}</td>
-                                                <td>{{ $assignment->user->user_type    ?? 'N/A' }}</td>
-                                                <td>{{ $assignment->user->details->first_name}}  {{ $assignment->user->details->last_name}}</td>
-                                                <td>
-                                                      <form action="{{ route('user.assignPlot') }}" method="POST">
-                                                         @csrf
-                                                         <input type="hidden" name="assignment_id" value="{{ $assignment->id }}">
-                                                         <input type="hidden" name="user_id" value="{{ $user->id }}">
-                                                         <select name="plot_id" class="form-control" required>
-                                                            <option value="">Select Plot</option>
-                                                            @foreach($availablePlots as $plot)
-                                                                  <option value="{{ $plot->id }}">{{ $plot->plot_name }}</option>
-                                                            @endforeach
-                                                         </select>
-                                                         <button type="submit" class="btn btn-sm btn-primary mt-1">Assign</button>
-                                                      </form>
-                                                </td>
-                                             </tr>
-                                          @endforeach
-                                    @endforeach -->
+                                 <tbody >
+                                    
                                  </tbody>
                               </table>
                            </div>
@@ -276,71 +207,84 @@ function renderUsers($users, $availablePlots, &$printedUsers, $level = 1) {
 <script src="{{ asset('freelance/assets/js/plugins/dataTables.min.js')}}"></script>
 <script src="{{ asset('freelance/assets/js/plugins/dataTables.bootstrap5.min.js')}}"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    let plotSelect = document.getElementById('plotSelect');
-    let container = document.getElementById('freelancerList');
-    let selectedPlotNameInput = document.getElementById('selectedPlotName');
+$(document).ready(function() {
     let projectId = "{{ $project->id }}";
+    let availablePlots = []; // Will store plots for current wing
 
-    function loadAssignments(plotId, plotName) {
-        // Update plot name in readonly field
-        selectedPlotNameInput.value = plotName || '';
+    // Initialize DataTable
+    let table = $('#row-callback1').DataTable({
+        processing: true,
+        serverSide: false,
+        searching: true,
+        paging: true,
+        info: true,
+        columns: [
+            { data: 'first_name' },
+            { data: 'last_name' },
+            { data: 'address' },
+            { data: 'phone' },
+            { data: 'email' },
+            { data: 'invited_by_type' },
+            { data: 'invited_by' },
+            {
+                data: null,
+                orderable: false,
+                searchable: false,
+                render: function(data) {
+                    if (data.plot_id) {
+                        // User already has a plot assigned
+                        return `<span class="text-success">Assigned: ${data.plot_name}</span>`;
+                     }
+                    let options = '<option value="">Select Plot</option>';
+                    availablePlots.forEach(plot => {
+                        options += `<option value="${plot.id}">${plot.plot_name}</option>`;
+                    });
+                    return `
+                        <form action="{{ route('user.assignPlot') }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="user_id" value="${data.id}">
+                            <select name="plot_id" class="form-control" required>
+                                ${options}
+                            </select>
+                            <button type="submit" class="btn btn-sm btn-primary mt-1">Assign</button>
+                        </form>
+                    `;
+                }
+            }
+        ]
+    });
 
-        if (!plotId) {
-            container.innerHTML = '';
+    function loadAssignmentsByWing(wingId) {
+        if (!wingId) {
+            table.clear().draw();
             return;
         }
 
-        fetch(`/user/project/${projectId}/plot/${plotId}/assignments`)
+        fetch(`/user/project/${projectId}/assignments/${wingId}`)
             .then(res => res.json())
             .then(data => {
-                if (!data.length) {
-                    container.innerHTML = '<p>No freelancers assigned for this plot.</p>';
-                    return;
-                }
+                // Save plots for current wing
+                availablePlots = data.plots;
 
-                let html = '';
-                data.forEach(assignment => {
-                    html += `
-                        <div class="col-md-6 flrenc_a flrenc_a_detl">
-                            <label class="form-label">
-                                ${assignment.freelancer?.details?.first_name || ''} (freelancer ${assignment.role})
-                            </label> 
-                            <div class="ad_frlncr">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-user-screen">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                    <path d="M19.03 17.818a3 3 0 0 0 1.97 -2.818v-8a3 3 0 0 0 -3 -3h-12a3 3 0 0 0 -3 3v8c0 1.317 .85 2.436 2.03 2.84"></path>
-                                    <path d="M10 14a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"></path>
-                                    <path d="M8 21a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2"></path>
-                                 </svg>
-                                  <div class="clear"></div>
-                                ${assignment.invited_users_count} User Invited By 
-                                <b>${assignment.freelancer?.details?.first_name || ''}</b> 
-                                <div class="clear"></div>
-                                <a class="invitd_users" href="#">View Invited Users</a> 
-                            </div>
-                        </div>
-                    `;
-                });
-                container.innerHTML = html;
+                // Populate DataTable with users
+                table.clear().rows.add(data.users).draw();
             })
-            .catch(err => {
-                console.error(err);
-                container.innerHTML = '<p>Error loading data.</p>';
-            });
+            .catch(err => console.error(err));
     }
 
-    // Load first plot on page load
-    let firstOption = plotSelect.options[plotSelect.selectedIndex];
-    loadAssignments(firstOption.value, firstOption.dataset.name);
+    // Load first wing data on page load
+    let firstWing = $('#plotSelect').val();
+    if (firstWing) loadAssignmentsByWing(firstWing);
 
-    // Load on change
-    plotSelect.addEventListener('change', function () {
-        let selectedOption = this.options[this.selectedIndex];
-        loadAssignments(selectedOption.value, selectedOption.dataset.name);
+    // Load table on wing change
+    $('#plotSelect').on('change', function() {
+        let wingId = $(this).val();
+        loadAssignmentsByWing(wingId);
     });
 });
 </script>
+
+
 <script>
    // [ DOM/jquery ]
    var total, pageTotal;
@@ -465,12 +409,12 @@ document.addEventListener('DOMContentLoaded', function () {
    // [ Custom Toolbar Elements ]
    $('div.toolbar').html('<b>Custom tool bar! Text/images etc.</b>');
    // [ custom callback ]
-   $('#row-callback').DataTable({
-     createdRow: function (row, data, index) {
-       if (data[5].replace(/[\$,]/g, '') * 1 > 150000) {
-         $('td', row).eq(5).addClass('highlight');
-       }
-     }
-   });
+   // $('#row-callback').DataTable({
+   //   createdRow: function (row, data, index) {
+   //     if (data[5].replace(/[\$,]/g, '') * 1 > 150000) {
+   //       $('td', row).eq(5).addClass('highlight');
+   //     }
+   //   }
+   // });
 </script>
 @endsection

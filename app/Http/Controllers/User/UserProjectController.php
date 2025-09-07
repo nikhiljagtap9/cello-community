@@ -12,6 +12,7 @@ use App\Models\UserDetail;
 use App\Models\Project;
 use App\Models\ProjectFreelancerAssignment;
 use Illuminate\Support\Str;
+use App\Models\ProjectWing;
 
 
 class UserProjectController extends Controller
@@ -186,44 +187,128 @@ class UserProjectController extends Controller
         return view('user.project.ongoing', compact('projects'));
     }
 
-   public function detail($id)
-{
-    $project = Project::with(['plots'])->findOrFail($id);
-
-    // Get all assigned users and their invited users recursively
-    $assignments = $project->freelancerAssignments()->with('user.details', 'user.children.details')->get();
-
-    $availablePlots = Plot::where('project_id', $project->id)
-                    ->where('status', 'Available')
-                    ->get();
-
-    return view('user.project.details', compact('project', 'assignments', 'availablePlots'));
-}
-
-
-
-
-    public function getPlotAssignments($projectId, $plotId)
+    public function detail($id)
     {
-        $assignments = ProjectFreelancerAssignment::with(['user.details'])
-            ->where('project_id', $projectId)
-            ->where('plot_id', $plotId)
-            ->withCount('invitedUsers')
+    
+        $project = Project::with(['plots.wing'])->findOrFail($id);
+
+       // Get all wings for this project (including soft-deleted if needed)
+        $wings = ProjectWing::where('project_id', $id)
+                ->orderBy('plot_label')
+                ->get();
+        // Get all assigned users and their invited users recursively
+        $assignments = $project->freelancerAssignments()->with('user.details', 'user.children.details')->get();
+
+
+        return view('user.project.details', compact('project', 'wings','assignments'));
+    }
+
+
+
+    public function getAssignmentsByWing($projectId, $wingId)
+    {
+        $project = Project::findOrFail($projectId);
+
+        // Get assignments where assigned plot belongs to the selected wing
+        $assignments = $project->freelancerAssignments()
+            ->whereHas('plot', function($q) use ($wingId) {
+                $q->where('project_wing_id', $wingId);
+            })
+            ->with('user.details', 'plot')
             ->get();
 
-        return response()->json($assignments);
+        $printedUsers = [];
+        $usersTree = [];
+
+        foreach ($assignments as $assignment) {
+            $user = $assignment->user;
+
+            // Load children recursively
+            $children = $this->loadChildrenRecursive($user, $printedUsers);
+
+            // Only add children to final array (skip main assigned user)
+            foreach ($children as $child) {
+                $usersTree[] = $child;
+            }
+        }
+
+
+        // Flatten user details
+        $usersTree = collect($usersTree)->map(function($user) use ($assignments) {
+            $assignedPlot = $assignments->firstWhere('user_id', $user->id)->plot ?? null;
+
+            return [
+                'id' => $user->id,
+                'first_name' => $user->details->first_name ?? '',
+                'last_name'  => $user->details->last_name ?? '',
+                'address'    => $user->details->address ?? '',
+                'phone'      => $user->details->phone ?? '',
+                'email'      => $user->email ?? '',
+                'invited_by' => $user->invited_by ?? '',
+                'invited_by_type' => $user->invited_by_type ?? '',
+                'plot_id' => $assignedPlot->id ?? null,   // <-- assigned plot id
+                'plot_name' => $assignedPlot->plot_name ?? null,
+            ];
+        });
+
+        // Get available plots for this project and wing
+        $availablePlots = Plot::where('project_id', $projectId)
+                            ->where('project_wing_id', $wingId)
+                            ->where('status', 'Available')
+                            ->get(['id', 'plot_name']);
+
+        return response()->json([
+            'users' => $usersTree,
+            'plots' => $availablePlots
+        ]);
+
+    //  return response()->json($usersTree);
     }
+
+    /**
+     * Load children recursively and track duplicates
+     * Returns array of children users (excluding the main user)
+     */
+    private function loadChildrenRecursive($user, &$printedUsers)
+    {
+        $childrenArray = [];
+
+        if (!isset($user->children)) {
+            $user->children = $user->children()->with('details')->get();
+        }
+
+        foreach ($user->children as $child) {
+            if (in_array($child->id, $printedUsers)) {
+                continue;
+            }
+
+            $printedUsers[] = $child->id;
+
+            // Track parent info
+            $child->invited_by = $user->details->first_name . ' ' . $user->details->last_name;
+            $child->invited_by_type = $user->user_type;
+
+            // Add this child to array
+            $childrenArray[] = $child;
+
+            // Recursively add their children
+            $grandChildren = $this->loadChildrenRecursive($child, $printedUsers);
+            $childrenArray = array_merge($childrenArray, $grandChildren);
+        }
+
+        return $childrenArray;
+    }
+
 
     /* plot assign to all user type*/
     public function assignPlot(Request $request)
     {
+       
         $request->validate([
-            'assignment_id' => 'required|exists:project_freelancer_assignments,id',
             'user_id' => 'required|exists:users,id',
             'plot_id' => 'required|exists:plots,id',
         ]);
 
-        $assignment = ProjectFreelancerAssignment::findOrFail($request->assignment_id);
         $plot = Plot::where('id', $request->plot_id)
                     ->where('status', 'Available')
                     ->first();
@@ -238,7 +323,7 @@ class UserProjectController extends Controller
 
         // Save the assignment record for this user and plot
         ProjectFreelancerAssignment::create([
-            'project_id' => $assignment->project_id,
+            'project_id' => $plot->project_id,
             'user_id' => $request->user_id,
             'plot_id' => $plot->id,
         ]);
