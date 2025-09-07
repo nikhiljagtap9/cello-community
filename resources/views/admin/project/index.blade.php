@@ -17,7 +17,7 @@
                         <path d="M9 4v13" />
                         <path d="M15 7v13" />
                      </svg>
-                     View Plot
+                     View Project
                   </h5>
                </div>
                <div class="card-body">
@@ -39,7 +39,6 @@
                         <thead>
                            <tr>
                               <th>Project Name</th>
-                              <th>Added User</th>
                               <th>Project Image</th>
                               <th>Edit</th>
                               <th>Delete</th>
@@ -49,8 +48,14 @@
                             @foreach($projects as $project)
                            <tr>
                               <td>{{$project->name}}</td>
-                              <td>{{$project->user->details->first_name}} {{$project->user->details->last_name}}</td>
-                              <td> <a  onclick="openModal_img('{{ asset('storage/' . $project->image) }}')" class="view_prdc"> VIEW </a> </td>
+                              <td>
+                                  @if($project->image)
+                                      <a onclick="openModal_img('{{ asset('storage/' . $project->image) }}')" class="view_prdc">VIEW</a>
+                                  @else
+                                      <span class="text-muted">No Image</span>
+                                  @endif
+                              </td>
+
                                 <td>
                                     <a href="{{route('admin.project.edit', $project->id)}}" class="edit_movie" >
                                         <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-edit">
@@ -85,7 +90,10 @@
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                 </div>
                                                 <div class="modal-body">
-                                                Are you sure you want to delete <strong>{{ $project->name }}</strong>?
+                                                  Are you sure you want to delete <strong>{{ $project->name }}</strong>?
+                                                  <div class="mt-2 mb-0">
+                                                      <b>Note:</b> This action will also delete all related plots.
+                                                  </div>
                                                 </div>
                                                 <div class="modal-footer">
                                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>

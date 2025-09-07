@@ -8,25 +8,26 @@ class ProjectFreelancerAssignment extends Model
 {
     protected $fillable = [
         'project_id',
-        'freelancer_id',
+        'user_id',
         'plot_id',
-        'role',
-        'status'
     ];
 
-    public function freelancer()
+    public function user()
     {
-        return $this->belongsTo(User::class, 'freelancer_id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     /**
-    * parent_id in users = inviter’s id
-
-    * freelancer_id in project_freelancer_assignments table links to the inviter’s user ID.
+     * parent_id in users = inviter’s id
+     * user_id in project_freelancer_assignments links to the inviter’s user ID.
      */
-   public function invitedUsers()
+    public function invitedUsers()
     {
-        return $this->hasMany(User::class, 'parent_id', 'freelancer_id');
+        return $this->hasMany(User::class, 'parent_id', 'user_id');
     }
 
+    public function plot()
+    {
+        return $this->belongsTo(Plot::class, 'plot_id');
+    }
 }

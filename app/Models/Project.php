@@ -28,4 +28,10 @@ class Project extends Model
         return $this->hasMany(ProjectFreelancerAssignment::class);
     }
 
+    public function wings()
+    {
+        return $this->hasMany(ProjectWing::class);
+    }
+
+
 }

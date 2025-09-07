@@ -165,11 +165,102 @@
                               </div>
                            </div>
                            <div class="clear"></div>
-                           <div id="freelancerList">
-                             
-                           </div>
+                           <div id="freelancerList"></div>
                            <div class="clear"></div>
                         </form>
+                        @php
+$printedUsers = []; // keep track of displayed user IDs
+
+function renderUsers($users, $availablePlots, &$printedUsers, $level = 1) {
+    foreach($users as $user) {
+        if(in_array($user->id, $printedUsers)) continue; // skip duplicates
+        $printedUsers[] = $user->id;
+
+        echo '<tr>';
+        echo '<td>' . $user->details->first_name . '</td>';
+        echo '<td>' . $user->details->last_name . '</td>';
+        echo '<td>' . $user->details->address . '</td>';
+        echo '<td>' . $user->details->phone . '</td>';
+        echo '<td>' . $user->email . '</td>';
+        echo '<td>' . ($user->parent ? $user->parent->details->first_name : 'N/A') . '</td>';
+        echo '<td>' . ($user->parent ? $user->parent->details->last_name : '') . '</td>';
+        echo '<td>
+                <form action="' . route('user.assignPlot') . '" method="POST">
+                    ' . csrf_field() . '
+                    <input type="hidden" name="user_id" value="' . $user->id . '">
+                    <select name="plot_id" class="form-control" required>
+                        <option value="">Select Plot</option>';
+                        foreach($availablePlots as $plot) {
+                            echo '<option value="' . $plot->id . '">' . $plot->plot_name . '</option>';
+                        }
+        echo '      </select>
+                    <button type="submit" class="btn btn-sm btn-primary mt-1">Assign</button>
+                </form>
+              </td>';
+        echo '</tr>';
+
+        if($user->children && $user->children->count()) {
+            renderUsers($user->children, $availablePlots, $printedUsers, $level + 1);
+        }
+    }
+}
+@endphp
+                        <!-- invited user -->
+                        <div class="card-body">
+                           <div class="table-responsive">
+                              <table id="row-callback" class="table table-striped table-bordered nowrap">
+                                 <thead>
+                                    <tr>
+                                       <th>First Name</th>
+                                       <th>Last Name</th>
+                                       <th>Address</th>
+                                       <th>Phone</th>
+                                       <th>Email ID</th>
+                                       <th>Invited By </th>
+                                       <th>Invitee Name </th>
+                                       <th>Assign Plot</th>     
+                                    </tr>
+                                 </thead>
+                                 <tbody>
+                                     @foreach($assignments as $assignment)
+            
+            @php
+                renderUsers($assignment->user->children, $availablePlots, $printedUsers, 1);
+            @endphp
+        @endforeach
+                               
+                                    <!-- @foreach($project->freelancerAssignments as $assignment)
+                                          @foreach($assignment->invitedUsers as $user)
+                                             <tr>
+                                                <td>{{ $user->details->first_name }}</td>
+                                                <td>{{ $user->details->last_name }}</td>
+                                                <td>{{ $user->details->address }}</td>
+                                                <td>{{ $user->details->phone }}</td>
+                                                <td>{{ $user->email }}</td>
+                                                <td>{{ $assignment->user->user_type    ?? 'N/A' }}</td>
+                                                <td>{{ $assignment->user->details->first_name}}  {{ $assignment->user->details->last_name}}</td>
+                                                <td>
+                                                      <form action="{{ route('user.assignPlot') }}" method="POST">
+                                                         @csrf
+                                                         <input type="hidden" name="assignment_id" value="{{ $assignment->id }}">
+                                                         <input type="hidden" name="user_id" value="{{ $user->id }}">
+                                                         <select name="plot_id" class="form-control" required>
+                                                            <option value="">Select Plot</option>
+                                                            @foreach($availablePlots as $plot)
+                                                                  <option value="{{ $plot->id }}">{{ $plot->plot_name }}</option>
+                                                            @endforeach
+                                                         </select>
+                                                         <button type="submit" class="btn btn-sm btn-primary mt-1">Assign</button>
+                                                      </form>
+                                                </td>
+                                             </tr>
+                                          @endforeach
+                                    @endforeach -->
+                                 </tbody>
+                              </table>
+                           </div>
+                        </div>
+                        <!-- invited user -->
                      </div>
                   </div>
                </div>
@@ -181,6 +272,9 @@
 </section>
 @endsection
 @section('scripts')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="{{ asset('freelance/assets/js/plugins/dataTables.min.js')}}"></script>
+<script src="{{ asset('freelance/assets/js/plugins/dataTables.bootstrap5.min.js')}}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     let plotSelect = document.getElementById('plotSelect');
@@ -245,8 +339,138 @@ document.addEventListener('DOMContentLoaded', function () {
         let selectedOption = this.options[this.selectedIndex];
         loadAssignments(selectedOption.value, selectedOption.dataset.name);
     });
-
 });
 </script>
-
+<script>
+   // [ DOM/jquery ]
+   var total, pageTotal;
+   var table = $('#dom-jqry').DataTable();
+   // [ column Rendering ]
+   $('#colum-render').DataTable({
+     columnDefs: [
+       {
+         render: function (data, type, row) {
+           return data + ' (' + row[3] + ')';
+         },
+         targets: 0
+       },
+       {
+         visible: false,
+         targets: [3]
+       }
+     ]
+   });
+   // [ Multiple Table Control Elements ]
+   $('#multi-table').DataTable({
+     dom: '<"top"iflp<"clear">>rt<"bottom"iflp<"clear">>'
+   });
+   // [ Complex Headers With Column Visibility ]
+   $('#complex-header').DataTable({
+     columnDefs: [
+       {
+         visible: false,
+         targets: -1
+       }
+     ]
+   });
+   // [ Language file ]
+   $('#lang-file').DataTable({
+     language: {
+       url: '//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/German.json'
+     }
+   });
+   // [ Setting Defaults ]
+   $('#setting-default').DataTable();
+   // [ Row Grouping ]
+   var table1 = $('#row-grouping').DataTable({
+     columnDefs: [
+       {
+         visible: false,
+         targets: 2
+       }
+     ],
+     order: [[2, 'asc']],
+     displayLength: 25,
+     drawCallback: function (settings) {
+       var api = this.api();
+       var rows = api
+         .rows({
+           page: 'current'
+         })
+         .nodes();
+       var last = null;
+   
+       api
+         .column(2, {
+           page: 'current'
+         })
+         .data()
+         .each(function (group, i) {
+           if (last !== group) {
+             $(rows)
+               .eq(i)
+               .before('<tr class="group"><td colspan="5">' + group + '</td></tr>');
+   
+             last = group;
+           }
+         });
+     }
+   });
+   // [ Order by the grouping ]
+   $('#row-grouping tbody').on('click', 'tr.group', function () {
+     var currentOrder = table.order()[0];
+     if (currentOrder[0] === 2 && currentOrder[1] === 'asc') {
+       table.order([2, 'desc']).draw();
+     } else {
+       table.order([2, 'asc']).draw();
+     }
+   });
+   // [ Footer callback ]
+   $('#footer-callback').DataTable({
+     footerCallback: function (row, data, start, end, display) {
+       var api = this.api(),
+         data;
+   
+       // Remove the formatting to get integer data for summation
+       var intVal = function (i) {
+         return typeof i === 'string' ? i.replace(/[\$,]/g, '') * 1 : typeof i === 'number' ? i : 0;
+       };
+   
+       // Total over all pages
+       total = api
+         .column(4)
+         .data()
+         .reduce(function (a, b) {
+           return intVal(a) + intVal(b);
+         }, 0);
+   
+       // Total over this page
+       pageTotal = api
+         .column(4, {
+           page: 'current'
+         })
+         .data()
+         .reduce(function (a, b) {
+           return intVal(a) + intVal(b);
+         }, 0);
+   
+       // Update footer
+       $(api.column(4).footer()).html('$' + pageTotal + ' ( $' + total + ' total)');
+     }
+   });
+   // [ Custom Toolbar Elements ]
+   $('#c-tool-ele').DataTable({
+     dom: '<"toolbar">frtip'
+   });
+   // [ Custom Toolbar Elements ]
+   $('div.toolbar').html('<b>Custom tool bar! Text/images etc.</b>');
+   // [ custom callback ]
+   $('#row-callback').DataTable({
+     createdRow: function (row, data, index) {
+       if (data[5].replace(/[\$,]/g, '') * 1 > 150000) {
+         $('td', row).eq(5).addClass('highlight');
+       }
+     }
+   });
+</script>
 @endsection

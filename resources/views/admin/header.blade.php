@@ -61,7 +61,39 @@
                   <span class="pc-mtext" >Dashboard</span> 
                   </a>
                </li>
-               <!-- <li class="pc-item pc-hasmenu {{request()->routeIs('admin.plot.*') ? 'active' : ''}}">
+              
+              
+               <li class="pc-item pc-hasmenu {{request()->routeIs('admin.project.*') ? 'active' : ''}}">
+                  <a href="#!" class="pc-link"
+                     >
+                     <span class="pc-micon">
+                        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-folder"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 4h4l3 3h7a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2" /></svg>
+                     </span>
+                     <span class="pc-mtext" >Project</span>
+                     <span class="pc-arrow"><i data-feather="chevron-right"></i></span
+                        >
+                  </a>
+                  <ul class="pc-submenu">
+                     <li class="pc-item"><a href="{{route('admin.project.create')}}" class="pc-link">Add Project</a></li>
+                     <li class="pc-item"><a href="{{route('admin.project.index')}}" class="pc-link">View Project</a></li>
+                  </ul>
+               </li>
+               <li class="pc-item pc-hasmenu {{request()->routeIs('admin.user.*') ? 'active' : ''}}">
+                  <a href="#!" class="pc-link"
+                     >
+                     <span class="pc-micon">
+                        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-user-circle"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /><path d="M12 10m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" /><path d="M6.168 18.849a4 4 0 0 1 3.832 -2.849h4a4 4 0 0 1 3.834 2.855" /></svg>
+                     </span>
+                     <span class="pc-mtext" >User</span>
+                     <span class="pc-arrow"><i data-feather="chevron-right"></i></span
+                        >
+                  </a>
+                  <ul class="pc-submenu">
+                     <li class="pc-item"><a href="{{route('admin.user.create')}}" class="pc-link">Add User</a></li>
+                     <li class="pc-item"><a href="{{route('admin.user.index')}}" class="pc-link">View User</a></li>
+                  </ul>
+               </li>
+               <li class="pc-item pc-hasmenu {{request()->routeIs('admin.plot.*') ? 'active' : ''}}">
                   <a href="#!" class="pc-link"
                      >
                      <span class="pc-micon">
@@ -81,38 +113,7 @@
                      <li class="pc-item"><a href="{{route('admin.plot.create')}}" class="pc-link">Add Plot</a></li>
                      <li class="pc-item"><a href="{{route('admin.plot.index')}}" class="pc-link">View Plot</a></li>
                   </ul>
-               </li> -->
-               <li class="pc-item pc-hasmenu {{request()->routeIs('admin.user.*') ? 'active' : ''}}">
-                  <a href="#!" class="pc-link"
-                     >
-                     <span class="pc-micon">
-                        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-user-circle"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /><path d="M12 10m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" /><path d="M6.168 18.849a4 4 0 0 1 3.832 -2.849h4a4 4 0 0 1 3.834 2.855" /></svg>
-                     </span>
-                     <span class="pc-mtext" >User</span>
-                     <span class="pc-arrow"><i data-feather="chevron-right"></i></span
-                        >
-                  </a>
-                  <ul class="pc-submenu">
-                     <li class="pc-item"><a href="{{route('admin.user.create')}}" class="pc-link">Add User</a></li>
-                     <li class="pc-item"><a href="{{route('admin.user.index')}}" class="pc-link">View User</a></li>
-                  </ul>
-               </li>
-               <li class="pc-item pc-hasmenu {{request()->routeIs('admin.project.*') ? 'active' : ''}}">
-                  <a href="#!" class="pc-link"
-                     >
-                     <span class="pc-micon">
-                        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-folder"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 4h4l3 3h7a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2" /></svg>
-                     </span>
-                     <span class="pc-mtext" >Project</span>
-                     <span class="pc-arrow"><i data-feather="chevron-right"></i></span
-                        >
-                  </a>
-                  <ul class="pc-submenu">
-                     <li class="pc-item"><a href="{{route('admin.project.create')}}" class="pc-link">Add Project</a></li>
-                     <li class="pc-item"><a href="{{route('admin.project.index')}}" class="pc-link">View Project</a></li>
-                  </ul>
-               </li>
-
+               </li> 
 
                <li class="pc-item pc-hasmenu ">
                   <a href="#" class="pc-link">

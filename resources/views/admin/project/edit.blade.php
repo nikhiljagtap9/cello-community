@@ -19,6 +19,11 @@
                      Edit Project
                   </h5>
                </div>
+               @if(session('error'))
+                    <div class="alert alert-danger">
+                    {{ session('error') }}
+                    </div>
+               @endif
                <div class="card-body" bis_skin_checked="1">
                   <div class="row" bis_skin_checked="1">
                      <div class="col-md-12 comn_md comn_md" bis_skin_checked="1">
@@ -52,49 +57,6 @@
                                     <label class="form-label">Project Description</label>
                                     <input type="text" name="description" value="{{ old('description', $project->description) }}" class="form-control" placeholder="Enter Project Description">
                                     @error('description')<small class="text-danger">{{ $message }}</small>@enderror
-                              </div>
-
-                              <!-- Plot Details -->
-                              <div class="col-md-12 mb-3">
-                                    <label class="form-label">Plot Details</label>
-                                    <table class="table table-bordered">
-                                       <thead>
-                                          <tr>
-                                                <th>Plot Name</th>
-                                                <th>Plot Size</th>
-                                                <th>Plot Location</th>
-                                                <th>Plot Dimensions</th>
-                                          </tr>
-                                       </thead>
-                                       <tbody id="plot-rows">
-                                          @foreach($project->plots as $index => $plot)
-                                                <tr>
-                                                   <td>
-                                                      <input type="hidden" name="plots[{{ $index }}][id]" value="{{ $plot->id }}">
-                                                      <input type="text" name="plots[{{ $index }}][plot_name]" value="{{ $plot->plot_name }}" class="form-control">
-                                                   </td>
-                                                   <td><input type="text" name="plots[{{ $index }}][plot_size]" value="{{ $plot->plot_size }}" class="form-control"></td>
-                                                   <td><input type="text" name="plots[{{ $index }}][plot_location]" value="{{ $plot->plot_location }}" class="form-control"></td>
-                                                   <td><input type="text" name="plots[{{ $index }}][plot_dimensions]" value="{{ $plot->plot_dimensions }}" class="form-control"></td>
-                                                </tr>
-                                          @endforeach
-                                       </tbody>
-                                    </table>
-                                    <button type="button" id="add-plot-row" class="btn btn-sm btn-secondary">Add More Plot</button>
-                              </div>
-
-                              <!-- Select User -->
-                              <div class="col-md-4 mb-3">
-                                    <label class="form-label">Select User</label>
-                                    <select name="user_id" class="form-control">
-                                       <option value="">Select User</option>
-                                       @foreach($users as $user)
-                                          <option value="{{ $user->id }}" {{ $project->user_id == $user->id ? 'selected' : '' }}>
-                                                {{ $user->details->first_name }}
-                                          </option>
-                                       @endforeach
-                                    </select>
-                                    @error('user_id')<small class="text-danger">{{ $message }}</small>@enderror
                               </div>
 
                               <div class="col-md-12">

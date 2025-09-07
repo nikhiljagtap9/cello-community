@@ -91,6 +91,22 @@ class User extends Authenticatable
         return $this->children()->where('user_type', 'sub_prospect');
     }
 
+    public function invitedUsers()
+    {
+        return $this->hasMany(User::class, 'parent_id', 'id');
+    }
+
+    public function allInvitedUsers()
+    {
+        $invited = $this->invitedUsers()->with('details')->get();
+
+        foreach ($invited as $user) {
+            $user->children = $user->allInvitedUsers(); // Recursive call
+        }
+
+        return $invited;
+    }
+
     /* ----------------------
      | Business Rules
      ---------------------- */

@@ -71,10 +71,8 @@ class UserProjectController extends Controller
                 // Save assignment
                 ProjectFreelancerAssignment::create([
                     'project_id'    => $projectId,
-                    'freelancer_id' => $freelancerA->id,
-                    'plot_id'       => $request->plot_id, // selected plot for A
-                    'status'          => 'ongoing',
-                    'role'          => 'A'         
+                    'user_id' => $freelancerA->id,
+                    'plot_id'       => $request->plot_id, // selected plot for A       
                 ]);
 
               //  Mail::to($freelancerA->email)->send(new TempPasswordMail($password));
@@ -100,10 +98,8 @@ class UserProjectController extends Controller
 
                 ProjectFreelancerAssignment::create([
                     'project_id'    => $projectId,
-                    'freelancer_id' => $freelancerB->id,
-                    'plot_id'       => $request->plot_id,
-                    'status'          => 'ongoing',
-                    'role'          => 'B',          
+                    'user_id' => $freelancerB->id,
+                    'plot_id'       => $request->plot_id,        
                 ]);
 
               //  Mail::to($freelancerB->email)->send(new TempPasswordMail($password));
@@ -121,6 +117,11 @@ class UserProjectController extends Controller
             $projectId = $request->project_id; // coming from form
             $mainUser  = auth()->user();       // logged in main user
 
+            // Find the plot and update its status to 'Booked'
+            $plot = Plot::findOrFail($request->plot_id);
+            $plot->status = 'Booked';
+            $plot->save();
+
             // --- Create Freelancer A ---
             if ($request->freelancer_a_email) {
                 $password = Str::random(8);
@@ -137,14 +138,8 @@ class UserProjectController extends Controller
                     'phone'      => $request->freelancer_a_phone,
                 ]);
 
-                // Save assignment
-                ProjectFreelancerAssignment::create([
-                    'project_id'    => $projectId,
-                    'freelancer_id' => $freelancerA->id,
-                    'plot_id'       => $request->plot_id,
-                    'status'        => 'ongoing',
-                    'role'          => 'A'
-                ]);
+               
+
                 //  Mail::to($freelancerA->email)->send(new TempPasswordMail($password));
             }
 
@@ -164,16 +159,17 @@ class UserProjectController extends Controller
                     'phone'      => $request->freelancer_b_phone,
                 ]);
 
-                ProjectFreelancerAssignment::create([
-                    'project_id'    => $projectId,
-                    'freelancer_id' => $freelancerB->id,
-                    'plot_id'       => $request->plot_id,
-                    'status'        => 'ongoing',
-                    'role'          => 'B',
-                ]);
+               
 
                 //  Mail::to($freelancerB->email)->send(new TempPasswordMail($password));
             }
+
+            // Save assignment
+            ProjectFreelancerAssignment::create([
+                    'project_id'    => $projectId,
+                    'user_id' => $mainUser->id,
+                    'plot_id'       => $request->plot_id,
+            ]);
         });
 
         return redirect()->route('user.project.ongoing')
@@ -182,34 +178,34 @@ class UserProjectController extends Controller
 
     public function ongoingProjects()
     {
-        $projects = Project::where('user_id', auth()->id()) // main user who owns the project
-            ->whereHas('freelancerAssignments', function ($query) {
-                $query->where('status', 'ongoing');
-            })
+        $projects = Project::where('user_id', auth()->id())
+            ->whereNull('deleted_at') // skip soft deleted
+            ->latest()
             ->get();
 
         return view('user.project.ongoing', compact('projects'));
     }
 
-    public function detail($id)
-    {
-        $project = Project::with([
-        'plots',
-        'freelancerAssignments.freelancer',   // get freelancer user details
-        'freelancerAssignments' => function ($query) {  // get freelancer invited user details
-            $query->withCount('invitedUsers');
-        }
-        ])
-        ->where('id', $id)
-        ->firstOrFail();
+   public function detail($id)
+{
+    $project = Project::with(['plots'])->findOrFail($id);
 
-        return view('user.project.details', compact('project'));
-    }
+    // Get all assigned users and their invited users recursively
+    $assignments = $project->freelancerAssignments()->with('user.details', 'user.children.details')->get();
+
+    $availablePlots = Plot::where('project_id', $project->id)
+                    ->where('status', 'Available')
+                    ->get();
+
+    return view('user.project.details', compact('project', 'assignments', 'availablePlots'));
+}
+
+
 
 
     public function getPlotAssignments($projectId, $plotId)
     {
-        $assignments = ProjectFreelancerAssignment::with(['freelancer.details'])
+        $assignments = ProjectFreelancerAssignment::with(['user.details'])
             ->where('project_id', $projectId)
             ->where('plot_id', $plotId)
             ->withCount('invitedUsers')
@@ -217,6 +213,39 @@ class UserProjectController extends Controller
 
         return response()->json($assignments);
     }
+
+    /* plot assign to all user type*/
+    public function assignPlot(Request $request)
+    {
+        $request->validate([
+            'assignment_id' => 'required|exists:project_freelancer_assignments,id',
+            'user_id' => 'required|exists:users,id',
+            'plot_id' => 'required|exists:plots,id',
+        ]);
+
+        $assignment = ProjectFreelancerAssignment::findOrFail($request->assignment_id);
+        $plot = Plot::where('id', $request->plot_id)
+                    ->where('status', 'Available')
+                    ->first();
+
+        if (!$plot) {
+            return redirect()->back()->with('error', 'Plot is not available.');
+        }
+
+        // Assign the plot and change its status
+        $plot->status = 'Booked';
+        $plot->save();
+
+        // Save the assignment record for this user and plot
+        ProjectFreelancerAssignment::create([
+            'project_id' => $assignment->project_id,
+            'user_id' => $request->user_id,
+            'plot_id' => $plot->id,
+        ]);
+
+        return redirect()->back()->with('success', 'Plot assigned successfully.');
+    }
+
 
 
    
