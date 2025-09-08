@@ -13,6 +13,7 @@ use App\Models\Project;
 use App\Models\ProjectFreelancerAssignment;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
+use App\Models\UserWingAssignment;
 
 
 
@@ -66,16 +67,18 @@ class ProspectProjectController extends Controller
                     'first_name' => $request->freelancer_a_first_name,
                     'last_name'  => $request->freelancer_a_last_name,
                     'phone'      => $request->freelancer_a_phone,
+                    'address'    => $request->freelancer_a_address,
                 ]);
 
-                // Save assignment
-                // ProjectFreelancerAssignment::create([
-                //     'project_id'    => $projectId,
-                //     'freelancer_id' => $freelancerA->id,
-                //     'plot_id'       => $request->plot_id,
-                //     'status'        => 'ongoing',
-                //     'role'          => 'A'
-                // ]);
+                // Assign to wing (use mainUser's first wing)
+                $freelancerWing = $mainUser->userWingAssignments()->first();
+                if ($freelancerWing) {
+                    UserWingAssignment::create([
+                        'user_id' => $freelancerA->id,
+                        'project_wing_id' => $freelancerWing->project_wing_id,
+                        'assigned_by' => $mainUser->id,
+                    ]);
+                }
                 //  Mail::to($freelancerA->email)->send(new TempPasswordMail($password));
             }
 
@@ -93,16 +96,18 @@ class ProspectProjectController extends Controller
                     'first_name' => $request->freelancer_b_first_name,
                     'last_name'  => $request->freelancer_b_last_name,
                     'phone'      => $request->freelancer_b_phone,
+                    'address'    => $request->freelancer_b_address,
                 ]);
 
-                // ProjectFreelancerAssignment::create([
-                //     'project_id'    => $projectId,
-                //     'freelancer_id' => $freelancerB->id,
-                //     'plot_id'       => $request->plot_id,
-                //     'status'        => 'ongoing',
-                //     'role'          => 'B',
-                // ]);
-
+                // Assign to wing (use mainUser's first wing)
+                $freelancerWing = $mainUser->userWingAssignments()->first();
+                if ($freelancerWing) {
+                    UserWingAssignment::create([
+                        'user_id' => $freelancerB->id,
+                        'project_wing_id' => $freelancerWing->project_wing_id,
+                        'assigned_by' => $mainUser->id,
+                    ]);
+                }
                 //  Mail::to($freelancerB->email)->send(new TempPasswordMail($password));
             }
         });

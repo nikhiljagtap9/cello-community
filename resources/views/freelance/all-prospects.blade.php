@@ -28,21 +28,21 @@
                             </tr>
                         </thead>
                         <tbody>
-                           @foreach($prospects as $prospect)
-                            <tr>
-                                <td>{{ $prospect->details->first_name ?? '' }}</td>
-                                <td>{{ $prospect->details->last_name ?? '' }}</td>
-                                <td>{{ $prospect->details->address ?? '' }}</td>
-                                <td>{{ $prospect->details->phone ?? '' }}</td>
-                                <td>{{ $prospect->email }}</td>
-                                <td>
-                                    @if($prospect->last_login_at)
-                                        <span class="badge text-bg-success">Added</span>
-                                    @else
-                                        <span class="badge text-bg-warning">Pending</span>
-                                    @endif
-                                </td>
-                            </tr>
+                            @foreach($prospects as $prospect)
+                                <tr>
+                                    <td>{{ $prospect->details->first_name ?? '' }}</td>
+                                    <td>{{ $prospect->details->last_name ?? '' }}</td>
+                                    <td>{{ $prospect->details->address ?? '' }}</td>
+                                    <td>{{ $prospect->details->phone ?? '' }}</td>
+                                    <td>{{ $prospect->email }}</td>
+                                    <td>
+                                        @if($prospect->last_login_at)
+                                            <span class="badge text-bg-success">Added</span>
+                                        @else
+                                            <span class="badge text-bg-warning">Pending</span>
+                                        @endif
+                                    </td>
+                                </tr>
                             @endforeach
                         </tbody>
                      </table>

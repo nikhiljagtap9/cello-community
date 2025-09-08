@@ -17,6 +17,16 @@
                      {{ ucwords($project->name) }}
                   </h5>
                </div>
+               @if ($errors->any())
+                  <div class="alert alert-danger">
+                     <ul>
+                           @foreach ($errors->all() as $error)
+                              <li>{{ $error }}</li>
+                           @endforeach
+                     </ul>
+                  </div>
+               @endif
+
                <div class="card-body" bis_skin_checked="1">
                   <div class="row" bis_skin_checked="1">
                      <div class="col-md-12 comn_md comn_md" bis_skin_checked="1">
@@ -79,19 +89,29 @@
                                  <!-- Hidden field for submission -->
                                  <input type="hidden" name="plot_id" id="plot_id">
                                  <div class="map_img_descrp">
+                                    <div class="map_det"> Select Plot Label  </div>
+                                    <select class="form-control" id="wingSelect" name="project_wing_id">
+                                       <option value="">-- Select Wing --</option>
+                                       @foreach($wings as $index => $wing)
+                                          <option value="{{ $wing->id }}" data-name="{{ ucfirst($wing->plot_label) }}" {{ $index === 0 ? 'selected' : '' }}>
+                                                {{ ucfirst($wing->plot_label) }}
+                                          </option>
+                                       @endforeach
+                                    </select>
+
                                     <div class="map_det"> Select Plot  </div>
                                     <div class="card-body" bis_skin_checked="1">
                                        <div class="row" bis_skin_checked="1">
                                           <div class="col-md-12 comn_md comn_md" bis_skin_checked="1">
                                              <div>
-                                                 
-
                                                   <div class="col-md-12 plot_detl" bis_skin_checked="1">
                                                    <label class="form-label" ></label> 
                                                    <select id="plot_select" class="form-control">
-                                                      @foreach($project->plots as $plot)
-                                                            <option value="{{ $plot->id }}">{{ $plot->plot_name }}</option>
-                                                      @endforeach
+                                                      <!-- @foreach($project->plots as $plot)
+                                                            <option value="{{ $plot->id }}" data-wing-id="{{ $plot->project_wing_id }}">
+                                                                  {{ $plot->plot_name }}
+                                                            </option>
+                                                      @endforeach -->
                                                    </select>
                                                 </div>
 
@@ -185,7 +205,7 @@
                             <input type="hidden" id="freelancer_b_email" name="freelancer_b_email">
                             <input type="hidden" id="freelancer_b_phone" name="freelancer_b_phone">
                             <input type="hidden" id="freelancer_b_address" name="freelancer_b_address">
-                            <!-- <input type="hidden" id="freelancer_b_referral_code" name="freelancer_b_referral_code"> -->
+                           <!-- <input type="hidden" id="freelancer_b_referral_code" name="freelancer_b_referral_code"> -->
 
 
                            <div class="clear"></div>
@@ -260,6 +280,50 @@
         });
     });
 });
+
+
+
+// 
+document.addEventListener("DOMContentLoaded", function () {
+    const wingSelect = document.getElementById("wingSelect");
+    const plotSelect = document.getElementById("plot_select");
+
+    // Function to fetch plots and update dropdown
+    function loadPlots(wingId) {
+        fetch(`/user/plots-by-wing/${wingId}`)
+            .then(response => response.json())
+            .then(plots => {
+                plotSelect.innerHTML = '<option value="">-- Select Plot --</option>';
+                plots.forEach(plot => {
+                    let option = document.createElement("option");
+                    option.value = plot.id;
+                    option.textContent = plot.plot_name;
+                    plotSelect.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching plots:', error);
+            });
+    }
+
+    // Initial load — get plots for selected wing (e.g., Wing A by default)
+    if (wingSelect.value) {
+        loadPlots(wingSelect.value);
+    }
+
+    // Load plots when wing selection changes
+    wingSelect.addEventListener("change", function () {
+        if (this.value) {
+            loadPlots(this.value);
+        } else {
+            plotSelect.innerHTML = '<option value="">-- Select Plot --</option>';
+        }
+    });
+});
+
+
+
+
 
 </script>
 @endsection

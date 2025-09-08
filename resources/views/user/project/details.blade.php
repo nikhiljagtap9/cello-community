@@ -13,7 +13,7 @@
                         <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
                         <path d="M5 4h4l3 3h7a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2" />
                      </svg>
-                     Lorem Project 
+                     {{ ucwords($project->name) }} 
                   </h5>
                </div>
                <div class="card-body" bis_skin_checked="1">
@@ -110,7 +110,7 @@
 
                                  </div>
                                  <div class="map_img_descrp">
-                                    <div class="map_det"> Select Plot  </div>
+                                    <div class="map_det"> Select Plot Label</div>
                                     <div class="card-body" bis_skin_checked="1">
                                        <div class="row" bis_skin_checked="1">
                                           <div class="col-md-12 comn_md comn_md" bis_skin_checked="1">

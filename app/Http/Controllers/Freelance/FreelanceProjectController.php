@@ -13,6 +13,7 @@ use App\Models\Project;
 use App\Models\ProjectFreelancerAssignment;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
+use App\Models\UserWingAssignment;
 
 
 
@@ -48,6 +49,19 @@ class FreelanceProjectController extends Controller
             'phone'      => $validated['phone'],
             'address'    => $validated['address'],
         ]);
+
+        // Assign to wing
+        $freelancerWing = $freelancer->userWingAssignments()->first();
+
+        if ($freelancerWing) {
+            $projectWingId = $freelancerWing->project_wing_id;
+            
+            UserWingAssignment::create([
+                'user_id' => $prospect->id,
+                'project_wing_id' => $projectWingId,
+                'assigned_by' => $freelancer->id,
+            ]);
+        }
 
         return response()->json(['success' => true, 'message' => 'Prospect added successfully!']);
     }

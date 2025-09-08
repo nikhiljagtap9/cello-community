@@ -19,11 +19,11 @@
                      Add Project
                   </h5>
                </div>
-               @if(session('error'))
-   <div class="alert alert-danger">
-       {{ session('error') }}
-   </div>
-@endif
+                @if(session('error'))
+                    <div class="alert alert-danger">
+                    {{ session('error') }}
+                    </div>
+                @endif
                <div class="card-body" bis_skin_checked="1">
                   <div class="row" bis_skin_checked="1">
                      <div class="col-md-12 comn_md comn_md" bis_skin_checked="1">
