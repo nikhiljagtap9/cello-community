@@ -9,7 +9,7 @@ class ProjectWing extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['plot_label', 'project_id'];
+    protected $fillable = ['plot_label', 'project_id','image'];
 
     public function project()
     {

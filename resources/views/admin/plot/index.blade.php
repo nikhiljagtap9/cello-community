@@ -60,7 +60,7 @@
                                           @forelse($wing->plots as $plot)
                                               <span class="badge bg-info">{{ $plot->plot_name }}</span>
                                           @empty
-                                              <span class="text-muted">No Plots</span>
+                                              <span class="text-muted">No Plots Available</span>
                                           @endforelse
                                       </td>
                                       <td>
@@ -86,7 +86,7 @@
                                                   <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /> <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /> 
                                                 </svg> 
                                               </button>
-                                              {{$wing->plots->first()->id}}
+                                              
                                               <!-- Delete Modal -->
                                               <div class="modal fade" id="deleteModal{{ $wing->plots->first()->id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ $wing->plots->first()->id}}" aria-hidden="true">
                                                   <div class="modal-dialog modal-dialog-centered">

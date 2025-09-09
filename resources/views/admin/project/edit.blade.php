@@ -40,7 +40,7 @@
                               </div>
 
                               <!-- Image Upload -->
-                              <div class="col-md-4 mb-3">
+                              <!-- <div class="col-md-4 mb-3">
                                     <label class="form-label">Upload Project Image</label>
                                     <input type="file" name="image" class="form-control" id="imageInput" onchange="previewImage(event)">
                                     @error('image')<small class="text-danger">{{ $message }}</small>@enderror
@@ -50,7 +50,7 @@
                                     @else
                                        <img id="imagePreview" src="#" style="display:none; width:100px; margin-top:10px;">
                                     @endif
-                              </div>
+                              </div> -->
 
                               <!-- Description -->
                               <div class="col-md-4 mb-3">

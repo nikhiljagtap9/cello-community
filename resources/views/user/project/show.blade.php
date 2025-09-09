@@ -1,6 +1,13 @@
 @extends('user.main')
 
 @section('content')
+<style>
+   .booked_mrk {
+    pointer-events: none;
+    cursor: default; /* shows not clickable */
+    opacity: 0.7; /* optional, visually distinct */
+   }
+</style>
 <section class="pc-container">
    <div class="pc-content">
       <!-- [ breadcrumb ] start -->
@@ -57,7 +64,7 @@
                               <div class="map_wrap_inner">
                                  <div class="map_pointer">
                                     
-                                    <img src="{{ asset('storage/' . $project->image) }}" class="map_img" > 
+                                    <img src="" class="map_img" id="wingImage"> 
                                     <!-- Map markers -->
                                     <div class="map_pointer_main">
                                        @foreach($project->plots as $plot)
@@ -76,6 +83,7 @@
                                           <div 
                                                 class="pointer_circ {{ $circleClass }} {{ $statusClass }} {{ strtolower($plot->status) }}_mrk tooltip-container" 
                                                 data-plot-id="{{ $plot->id }}" 
+                                                data-wing-id="{{ $plot->project_wing_id }}"
                                                 data-plot-name="{{ $plot->plot_name }}"
                                                 data-plot-size="{{ $plot->plot_size }}"
                                                 data-plot-location="{{ $plot->plot_location }}"
@@ -91,35 +99,40 @@
                                  <div class="map_img_descrp">
                                     <div class="map_det"> Select Plot Label  </div>
                                     <select class="form-control" id="wingSelect" name="project_wing_id">
-                                       <option value="">-- Select Wing --</option>
+                                       <option value="">-- Select Plot Label --</option>
                                        @foreach($wings as $index => $wing)
-                                          <option value="{{ $wing->id }}" data-name="{{ ucfirst($wing->plot_label) }}" {{ $index === 0 ? 'selected' : '' }}>
+                                          <option value="{{ $wing->id }}" 
+                                          data-name="{{ ucfirst($wing->plot_label) }}" 
+                                          data-image="{{ asset('storage/' . $wing->image) }}"
+                                          {{ $index === 0 ? 'selected' : '' }}>
                                                 {{ ucfirst($wing->plot_label) }}
                                           </option>
                                        @endforeach
                                     </select>
 
-                                    <div class="map_det"> Select Plot  </div>
-                                    <div class="card-body" bis_skin_checked="1">
-                                       <div class="row" bis_skin_checked="1">
-                                          <div class="col-md-12 comn_md comn_md" bis_skin_checked="1">
-                                             <div>
-                                                  <div class="col-md-12 plot_detl" bis_skin_checked="1">
-                                                   <label class="form-label" ></label> 
-                                                   <select id="plot_select" class="form-control">
-                                                      <!-- @foreach($project->plots as $plot)
-                                                            <option value="{{ $plot->id }}" data-wing-id="{{ $plot->project_wing_id }}">
-                                                                  {{ $plot->plot_name }}
-                                                            </option>
-                                                      @endforeach -->
-                                                   </select>
-                                                </div>
+                                    <div style="display:none">
+                                       <div class="map_det"> Select Plot  </div>
+                                       <div class="card-body" bis_skin_checked="1">
+                                          <div class="row" bis_skin_checked="1">
+                                             <div class="col-md-12 comn_md comn_md" bis_skin_checked="1">
+                                                <div>
+                                                   <div class="col-md-12 plot_detl" bis_skin_checked="1">
+                                                      <label class="form-label" ></label> 
+                                                      <select id="plot_select" class="form-control">
+                                                         <!-- @foreach($project->plots as $plot)
+                                                               <option value="{{ $plot->id }}" data-wing-id="{{ $plot->project_wing_id }}">
+                                                                     {{ $plot->plot_name }}
+                                                               </option>
+                                                         @endforeach -->
+                                                      </select>
+                                                   </div>
 
 
-                                                <div class="clear"></div>
-                                               
+                                                   <div class="clear"></div>
                                                 
-                                                <div class="clear"></div>
+                                                   
+                                                   <div class="clear"></div>
+                                                </div>
                                              </div>
                                           </div>
                                        </div>
@@ -322,8 +335,45 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 
+// display image depend on wigns select
+document.addEventListener("DOMContentLoaded", function () {
+    const wingSelect = document.getElementById("wingSelect");
+    const wingImage = document.getElementById("wingImage");
 
+    wingSelect.addEventListener("change", function () {
+        const selectedOption = wingSelect.options[wingSelect.selectedIndex];
+        const newImageUrl = selectedOption.getAttribute("data-image");
 
+        if (newImageUrl && wingImage) {
+            wingImage.src = newImageUrl;
+        }
+    });
+});
+
+// To make plot markers show/hide based on selected wing
+document.addEventListener("DOMContentLoaded", function () {
+    const wingSelect = document.getElementById("wingSelect");
+
+    function filterPlotMarkers(wingId) {
+        document.querySelectorAll(".pointer_circ").forEach(marker => {
+            if (marker.dataset.wingId === wingId) {
+                marker.style.display = "block";
+            } else {
+                marker.style.display = "none";
+            }
+        });
+    }
+
+    // Initial filter on page load
+    if (wingSelect && wingSelect.value) {
+        filterPlotMarkers(wingSelect.value);
+    }
+
+    // On wing select change
+    wingSelect.addEventListener("change", function () {
+        filterPlotMarkers(this.value);
+    });
+});
 
 </script>
 @endsection

@@ -45,9 +45,8 @@ class UserProjectController extends Controller
     public function getPlotsByWing($wing_id)
     {
         $plots = Plot::where('project_wing_id', $wing_id)
-            ->where('status', 'Available') // optional filter
-            ->get(['id', 'plot_name']);
-
+           // ->where('status', 'Available') // optional filter
+            ->get(['id', 'plot_name','status']);
         return response()->json($plots);
     }
 
@@ -197,15 +196,18 @@ class UserProjectController extends Controller
             'plot_id' => 'required|exists:plots,id',
             
             'freelancer_a_email' => [
-                'nullable',
+                'required',
                 'email',
                 'unique:users,email'
             ],
             'freelancer_b_email' => [
-                'nullable',
+                'required',
                 'email',
                 'unique:users,email'
             ],
+        ],[
+            'plot_id.required' => 'Please select a plot before submitting.',
+            'plot_id.exists' => 'The selected plot is invalid.',
         ]);
 
         DB::transaction(function () use ($request) {

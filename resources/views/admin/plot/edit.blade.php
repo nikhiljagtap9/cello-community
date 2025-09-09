@@ -57,6 +57,19 @@
                                  @enderror
                               </div>
 
+                              <!-- Image Upload -->
+                              <div class="col-md-4 mb-3">
+                                    <label class="form-label">Upload Plot Image</label>
+                                    <input type="file" name="image" class="form-control" id="imageInput" onchange="previewImage(event)">
+                                    @error('image')<small class="text-danger">{{ $message }}</small>@enderror
+
+                                    @if($project->image)
+                                       <img id="imagePreview" src="{{ asset('storage/' . $plot->wing->image) }}" style="width:100px; margin-top:10px;">
+                                    @else
+                                       <img id="imagePreview" src="#" style="display:none; width:100px; margin-top:10px;">
+                                    @endif
+                              </div>
+
 
                               <!-- Plot Details -->
                               <div class="col-md-12 mb-3">

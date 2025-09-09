@@ -39,7 +39,7 @@
                         <thead>
                            <tr>
                               <th>Project Name</th>
-                              <th>Project Image</th>
+                              <th>Project Desc</th>
                               <th>Edit</th>
                               <th>Delete</th>
                            </tr>
@@ -49,11 +49,7 @@
                            <tr>
                               <td>{{$project->name}}</td>
                               <td>
-                                  @if($project->image)
-                                      <a onclick="openModal_img('{{ asset('storage/' . $project->image) }}')" class="view_prdc">VIEW</a>
-                                  @else
-                                      <span class="text-muted">No Image</span>
-                                  @endif
+                                 {{$project->description}}
                               </td>
 
                                 <td>

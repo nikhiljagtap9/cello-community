@@ -37,13 +37,13 @@
                                 @enderror
                             </div>
 
-                            <div class="col-md-4">
+                            <!-- <div class="col-md-4">
                                 <label class="form-label">Upload Project Image</label>
                                 <input type="file" name="image" class="form-control" id="imageInput">
                                 @error('image')
                                         <small class="text-danger d-block mt-1">{{ $message }}</small>
                                 @enderror
-                            </div>
+                            </div> -->
 
                             <div class="col-md-4">
                                 <label class="form-label">Project Description</label>

@@ -39,18 +39,13 @@ class ProjectController extends Controller
         $request->validate([
             'name' => 'required|string',
             'description' => 'nullable|string',
-            'image' => 'nullable|image',
         ]);
 
         try {
-            if ($request->hasFile('image')) {
-                $imagePath = $request->file('image')->store('projects', 'public');
-            }
 
             $project = Project::create([
                 'name' => $request->name,
                 'description' => $request->description,
-                'image' => $imagePath ?? null,
             ]);
             return redirect()->route('admin.project.index')->with('success', 'Project created successfully.');
         } catch (\Exception $e) {
@@ -85,19 +80,10 @@ class ProjectController extends Controller
         $request->validate([
             'name' => 'required|string',
             'description' => 'nullable|string',
-            'image' => 'nullable|image',
         ]);
 
         try {
             $project = Project::findOrFail($id);
-
-            if ($request->hasFile('image')) {
-                if ($project->image) {
-                    Storage::disk('public')->delete($project->image);
-                }
-                $imagePath = $request->file('image')->store('projects', 'public');
-                $project->image = $imagePath;
-            }
 
             // Project Update
             $project->update([

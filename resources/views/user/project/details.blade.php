@@ -29,85 +29,35 @@
                               <div class="map_wrap_inner">
                                  <div class="map_pointer">
                                     
-                                    <img src="{{ asset('user/assets/images/map_1.jpg')}}" class="map_img" > 
+                                    <img src="" class="map_img" id="wingImage"> 
+                                    <!-- Map markers -->
                                     <div class="map_pointer_main">
-                                       <div class="pointer_circ circl_1 avlbl_mrk tooltip-container">
-                                          <div class="tooltip-text">Available</div>
-                                       </div>
-                                       <div class="pointer_circ circl_2 sold_mrk tooltip-container">
-                                          <div class="tooltip-text">Sold</div>
-                                       </div>
-                                       <div class="pointer_circ circl_3 avlbl_mrk tooltip-container">
-                                          <div class="tooltip-text">Available</div>
-                                       </div>
-                                       <div class="pointer_circ circl_4 sold_mrk tooltip-container">
-                                          <div class="tooltip-text">Sold</div>
-                                       </div>
-                                       <div class="pointer_circ circl_6 booked_mrk tooltip-container">
-                                          <div class="tooltip-text">Booked</div>
-                                       </div>
-                                       <div class="pointer_circ circl_7 sold_mrk tooltip-container">
-                                          <div class="tooltip-text">Sold</div>
-                                       </div>
-                                       <div class="pointer_circ circl_8 avlbl_mrk tooltip-container">
-                                          <div class="tooltip-text">Available</div>
-                                       </div>
-                                       <div class="pointer_circ circl_9 sold_mrk tooltip-container">
-                                          <div class="tooltip-text">Sold</div>
-                                       </div>
-                                       <div class="pointer_circ circl_10 booked_mrk tooltip-container">
-                                          <div class="tooltip-text">Booked</div>
-                                       </div>
-                                       <div class="pointer_circ circl_11 avlbl_mrk tooltip-container">
-                                          <div class="tooltip-text">Available</div>
-                                       </div>
-                                       <div class="pointer_circ circl_12 booked_mrk tooltip-container">
-                                          <div class="tooltip-text">Booked</div>
-                                       </div>
+                                       @foreach($project->plots as $plot)
+                                          @php
+                                             // Determine status class
+                                             $statusClass = match(strtolower($plot->status)) {
+                                                   'available' => 'avlbl_mrk',
+                                                   'sold' => 'sold_mrk',
+                                                   'booked' => 'booked_mrk',
+                                                   default => '',
+                                             };
 
-
-
-
-
-
-
-                                       <div class="pointer_circ circl_13 avlbl_mrk tooltip-container">
-                                          <div class="tooltip-text">Available</div>
-                                       </div>
-                                       <div class="pointer_circ circl_14 sold_mrk tooltip-container">
-                                          <div class="tooltip-text">Sold</div>
-                                       </div>
-                                       <div class="pointer_circ circl_15 avlbl_mrk tooltip-container">
-                                          <div class="tooltip-text">Available</div>
-                                       </div>
-                                       <div class="pointer_circ circl_16 sold_mrk tooltip-container">
-                                          <div class="tooltip-text">Sold</div>
-                                       </div>
-                                       <div class="pointer_circ circl_17 booked_mrk tooltip-container">
-                                          <div class="tooltip-text">Booked</div>
-                                       </div>
-                                       <div class="pointer_circ circl_18 sold_mrk tooltip-container">
-                                          <div class="tooltip-text">Sold</div>
-                                       </div>
-                                       <div class="pointer_circ circl_19 avlbl_mrk tooltip-container">
-                                          <div class="tooltip-text">Available</div>
-                                       </div>
-                                       <div class="pointer_circ circl_20 sold_mrk tooltip-container">
-                                          <div class="tooltip-text">Sold</div>
-                                       </div>
-                                       <div class="pointer_circ circl_21 booked_mrk tooltip-container">
-                                          <div class="tooltip-text">Booked</div>
-                                       </div>
-                                       <div class="pointer_circ circl_22 avlbl_mrk tooltip-container">
-                                          <div class="tooltip-text">Available</div>
-                                       </div>
-                                       <div class="pointer_circ circl_23 booked_mrk tooltip-container">
-                                          <div class="tooltip-text">Booked</div>
-                                       </div>
-
-                                       <div class="clear"></div>
+                                             // Circle class - using iteration or plot ID
+                                             $circleClass = 'circl_' . ($loop->iteration); // Or $plot->id
+                                          @endphp
+                                          <div 
+                                                class="pointer_circ {{ $circleClass }} {{ $statusClass }} {{ strtolower($plot->status) }}_mrk tooltip-container" 
+                                                data-plot-id="{{ $plot->id }}" 
+                                                data-wing-id="{{ $plot->project_wing_id }}"
+                                                data-plot-name="{{ $plot->plot_name }}"
+                                                data-plot-size="{{ $plot->plot_size }}"
+                                                data-plot-location="{{ $plot->plot_location }}"
+                                                data-plot-dimensions="{{ $plot->plot_dimensions }}">
+                                                <div class="tooltip-text">{{ ucfirst($plot->status) }}</div>
+                                          </div>
+                                         
+                                       @endforeach
                                     </div>
-
                                  </div>
                                  <div class="map_img_descrp">
                                     <div class="map_det"> Select Plot Label</div>
@@ -119,10 +69,13 @@
 
                                                   <div class="col-md-12 plot_detl" bis_skin_checked="1">
                                                    <label class="form-label" ></label> 
-                                                   <select class="form-control" id="plotSelect">
-                                                      <option value="">-- Select Wing --</option>
+                                                   <select class="form-control" id="wingSelect">
+                                                      <option value="">-- Select Plot Label --</option>
                                                       @foreach($wings as $index => $wing)
-                                                         <option value="{{ $wing->id }}" data-name="{{ ucfirst($wing->plot_label) }}" {{ $index === 0 ? 'selected' : '' }}>
+                                                         <option value="{{ $wing->id }}" 
+                                                         data-name="{{ ucfirst($wing->plot_label) }}" 
+                                                         data-image="{{ asset('storage/' . $wing->image) }}"
+                                                         {{ $index === 0 ? 'selected' : '' }}>
                                                                {{ ucfirst($wing->plot_label) }}
                                                          </option>
                                                       @endforeach
@@ -273,13 +226,53 @@ $(document).ready(function() {
     }
 
     // Load first wing data on page load
-    let firstWing = $('#plotSelect').val();
+    let firstWing = $('#wingSelect').val();
     if (firstWing) loadAssignmentsByWing(firstWing);
 
     // Load table on wing change
-    $('#plotSelect').on('change', function() {
+    $('#wingSelect').on('change', function() {
         let wingId = $(this).val();
         loadAssignmentsByWing(wingId);
+    });
+});
+
+// display image depend on wigns select
+document.addEventListener("DOMContentLoaded", function () {
+    const wingSelect = document.getElementById("wingSelect");
+    const wingImage = document.getElementById("wingImage");
+
+    wingSelect.addEventListener("change", function () {
+        const selectedOption = wingSelect.options[wingSelect.selectedIndex];
+        const newImageUrl = selectedOption.getAttribute("data-image");
+
+        if (newImageUrl && wingImage) {
+            wingImage.src = newImageUrl;
+        }
+    });
+});
+
+// To make plot markers show/hide based on selected wing
+document.addEventListener("DOMContentLoaded", function () {
+    const wingSelect = document.getElementById("wingSelect");
+
+    function filterPlotMarkers(wingId) {
+        document.querySelectorAll(".pointer_circ").forEach(marker => {
+            if (marker.dataset.wingId === wingId) {
+                marker.style.display = "block";
+            } else {
+                marker.style.display = "none";
+            }
+        });
+    }
+
+    // Initial filter on page load
+    if (wingSelect && wingSelect.value) {
+        filterPlotMarkers(wingSelect.value);
+    }
+
+    // On wing select change
+    wingSelect.addEventListener("change", function () {
+        filterPlotMarkers(this.value);
     });
 });
 </script>

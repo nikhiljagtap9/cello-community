@@ -46,6 +46,7 @@ class PlotController extends Controller
             'project_id' => 'required|exists:projects,id',
             'user_id'    => 'required|exists:users,id',
             'plot_label' => 'required|string',
+            'image' => 'nullable|image',
             'plots.*.plot_name'      => 'required|string',
             'plots.*.plot_size'      => 'nullable|string',
             'plots.*.plot_location'  => 'nullable|string',
@@ -67,10 +68,15 @@ class PlotController extends Controller
                 $project->user_id = $request->user_id;
                 $project->save();
 
+                if ($request->hasFile('image')) {
+                    $imagePath = $request->file('image')->store('projects', 'public');
+                }
+
                 // Create project wing
                 $wing = ProjectWing::create([
                     'plot_label' => $request->plot_label,
                     'project_id' => $request->project_id,
+                    'image' => $imagePath ?? null,
                 ]);
 
                 // Create plots
@@ -100,7 +106,7 @@ class PlotController extends Controller
     public function edit(string $id)
     {
         // Get the plot being edited
-        $plot = Plot::with('project')->findOrFail($id);
+        $plot = Plot::with('project','wing')->findOrFail($id);
 
         // Fetch all projects (for dropdown)
         $projects = Project::whereHas('plots')->latest()->get();
@@ -127,6 +133,7 @@ class PlotController extends Controller
             'project_id' => 'required|exists:projects,id',
             'user_id'    => 'required|exists:users,id',
             'plot_label' => 'required|string',
+            'image' => 'nullable|image',
             'plots.*.plot_name'       => 'required|string',
             'plots.*.plot_size'       => 'nullable|string',
             'plots.*.plot_location'   => 'nullable|string',
@@ -157,15 +164,36 @@ class PlotController extends Controller
 
                 // Update or create Wing
                 $wing = $plot->wing; // directly from this plot
-                if ($wing) {
-                    $wing->update([
-                        'plot_label' => $request->plot_label,
-                    ]);
+                if ($request->hasFile('image')) {
+                    if ($wing && $wing->image) {
+                        Storage::disk('public')->delete($wing->image);
+                    }
+
+                    $imagePath = $request->file('image')->store('projects', 'public');
+
+                    if ($wing) {
+                        $wing->update([
+                            'plot_label' => $request->plot_label,
+                            'image' => $imagePath,
+                        ]);
+                    } else {
+                        $wing = $project->wings()->create([
+                            'plot_label' => $request->plot_label,
+                            'image' => $imagePath,
+                        ]);
+                    }
                 } else {
-                    $wing = $project->wings()->create([
-                        'plot_label' => $request->plot_label,
-                    ]);
+                    if ($wing) {
+                        $wing->update([
+                            'plot_label' => $request->plot_label,
+                        ]);
+                    } else {
+                        $wing = $project->wings()->create([
+                            'plot_label' => $request->plot_label,
+                        ]);
+                    }
                 }
+
 
                 // Sync plots under this project
                 $existingPlotIds   = $project->plots()->pluck('id')->toArray();

@@ -52,6 +52,14 @@
                                 @enderror
                             </div>
 
+                             <div class="col-md-4">
+                                <label class="form-label">Upload Plot Image</label>
+                                <input type="file" name="image" class="form-control" id="imageInput">
+                                @error('image')
+                                        <small class="text-danger d-block mt-1">{{ $message }}</small>
+                                @enderror
+                            </div>
+                            
                            <div class="clear"></div>
 
                            <img id="imagePreview" src="#" style="display:none; width:100px; margin-top:10px;" />
