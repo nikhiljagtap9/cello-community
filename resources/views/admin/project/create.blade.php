@@ -19,6 +19,11 @@
                      Add Project
                   </h5>
                </div>
+                @if(session('error'))
+                    <div class="alert alert-danger">
+                    {{ session('error') }}
+                    </div>
+                @endif
                <div class="card-body" bis_skin_checked="1">
                   <div class="row" bis_skin_checked="1">
                      <div class="col-md-12 comn_md comn_md" bis_skin_checked="1">
@@ -32,13 +37,13 @@
                                 @enderror
                             </div>
 
-                            <div class="col-md-4">
+                            <!-- <div class="col-md-4">
                                 <label class="form-label">Upload Project Image</label>
                                 <input type="file" name="image" class="form-control" id="imageInput">
                                 @error('image')
                                         <small class="text-danger d-block mt-1">{{ $message }}</small>
                                 @enderror
-                            </div>
+                            </div> -->
 
                             <div class="col-md-4">
                                 <label class="form-label">Project Description</label>
@@ -53,40 +58,6 @@
                            <img id="imagePreview" src="#" style="display:none; width:100px; margin-top:10px;" />
                            <!-- <img src="assets/images/map_1.jpg" class="map_img_1" style="float: left; width: 100%; " > -->
                              
-                           <div class="col-md-12 plot_dimn">
-                                <label class="form-label">Plot Details</label>
-                                <table class="table table-bordered">
-                                    <thead>
-                                        <tr>
-                                            <th>Plot Name</th>
-                                            <th>Plot Size</th>
-                                            <th>Plot Location</th>
-                                            <th>Plot Dimensions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="plot-rows">
-                                        <tr>
-                                            <td><input type="text" name="plots[0][plot_name]" class="form-control" /></td>
-                                            <td><input type="text" name="plots[0][plot_size]" class="form-control" /></td>
-                                            <td><input type="text" name="plots[0][plot_location]" class="form-control" /></td>
-                                            <td><input type="text" name="plots[0][plot_dimensions]" class="form-control" /></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                                <button type="button" id="add-plot-row" class="btn btn-sm btn-success">Add More Plot</button>
-                            </div>
-                           <div class="clear"></div>
-
-                            <div class="col-md-4">
-                                <label class="form-label">Select User</label>
-                                <select name="user_id" class="form-control">
-                                    <option value="">Select User</option>
-                                    @foreach($users as $user)
-                                        <option value="{{ $user->id }}">{{ $user->details->first_name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-
                             <div class="clear"></div>
                             <div class="col-md-12">
                                 <button type="submit" class="btn btn-primary mb-4">Add Project</button>

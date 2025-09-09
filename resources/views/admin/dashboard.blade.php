@@ -31,7 +31,7 @@
       <div class="row">
          <div class="row" bis_skin_checked="1">
             <!-- [ Row 1 ] start -->
-            <!-- <div class="col-sm-6 col-xl-4" bis_skin_checked="1">
+            <div class="col-sm-6 col-xl-4" bis_skin_checked="1">
                <div class="card statistics-card-1" bis_skin_checked="1">
                   <div class="card-header d-flex align-items-center justify-content-between py-3 plot_remn" bis_skin_checked="1">
                      <h5>Total Plot </h5>
@@ -49,7 +49,7 @@
                      <div class="clear"></div>
                   </div>
                </div>
-            </div> -->
+            </div>
             <div class="col-sm-6 col-xl-4" bis_skin_checked="1">
                <div class="card statistics-card-1" bis_skin_checked="1">
                   <div class="card-header d-flex align-items-center justify-content-between py-3 plot_remn" bis_skin_checked="1">

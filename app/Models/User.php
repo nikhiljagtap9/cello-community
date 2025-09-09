@@ -91,6 +91,35 @@ class User extends Authenticatable
         return $this->children()->where('user_type', 'sub_prospect');
     }
 
+    // Assignments (plots assigned to this user)
+    public function assignments()
+    {
+        return $this->hasMany(ProjectFreelancerAssignment::class, 'user_id')->with('plot');
+    }
+
+    public function userWingAssignments()
+    {
+        return $this->hasMany(UserWingAssignment::class, 'user_id');
+    }
+
+
+
+    // public function invitedUsers()
+    // {
+    //     return $this->hasMany(User::class, 'parent_id', 'id');
+    // }
+
+    // public function allInvitedUsers()
+    // {
+    //     $invited = $this->invitedUsers()->with('details')->get();
+
+    //     foreach ($invited as $user) {
+    //         $user->children = $user->allInvitedUsers(); // Recursive call
+    //     }
+
+    //     return $invited;
+    // }
+
     /* ----------------------
      | Business Rules
      ---------------------- */
