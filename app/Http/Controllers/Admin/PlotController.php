@@ -10,6 +10,7 @@ use App\Models\ProjectWing;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class PlotController extends Controller
 {
@@ -18,6 +19,7 @@ class PlotController extends Controller
      */
     public function index()
     {
+        // Test
         $projects = Project::with(['plots.wing', 'user'])
         ->whereHas('plots') // only projects that have at least 1 plot
         ->latest()
@@ -165,12 +167,19 @@ class PlotController extends Controller
                 // Update or create Wing
                 $wing = $plot->wing; // directly from this plot
                 if ($request->hasFile('image')) {
-                    if ($wing && $wing->image) {
-                        Storage::disk('public')->delete($wing->image);
+                    // delete old file if exists
+                    if ($wing && $wing->image && file_exists(public_path($wing->image))) {
+                        unlink(public_path($wing->image));
                     }
 
-                    $imagePath = $request->file('image')->store('projects', 'public');
+                    // upload new image directly to /public/projects
+                    $file = $request->file('image');
+                    $fileName = time() . '_' . $file->getClientOriginalName();
+                    $file->move(public_path('projects'), $fileName);
 
+                    $imagePath = 'projects/' . $fileName; // relative path for DB
+
+                    // update or create wing
                     if ($wing) {
                         $wing->update([
                             'plot_label' => $request->plot_label,
@@ -182,7 +191,8 @@ class PlotController extends Controller
                             'image' => $imagePath,
                         ]);
                     }
-                } else {
+                }
+                else {
                     if ($wing) {
                         $wing->update([
                             'plot_label' => $request->plot_label,

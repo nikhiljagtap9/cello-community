@@ -286,6 +286,9 @@
       <script src="{{ asset('user/assets/js/theme.js')}}"></script>
       <script src="{{ asset('user/assets/js/multi-lang.js')}}"></script>
       <script src="{{ asset('user/assets/js/plugins/feather.min.js')}}"></script>
+      <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+      <script src="{{ asset('frontend/user_demo.js')}}"></script>
       <script>
          layout_change('light');
       </script>

@@ -60,7 +60,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('project.ongoing');
 
         Route::get('projects/{id}', [UserProjectController::class, 'show'])->name('project.show'); 
-        Route::post('projects/assign-freelancers', [UserProjectController::class, 'assignFreelancers'])->name('project.assignFreelancers');  
+        Route::post('projects/assign-freelancers', [UserProjectController::class, 'assignFreelancers'])->name('project.assignFreelancers');
+
+
+        Route::post('projects/assign-freelancers-ajax', [UserProjectController::class, 'assignFreelancers_ajax']); 
         Route::get('projects/{id}/detail', [UserProjectController::class, 'detail'])->name('project.detail');  
         Route::get('/project/{project}/plot/{plot}/assignments', [UserProjectController::class, 'getPlotAssignments'])
             ->name('project.plot.assignments');
