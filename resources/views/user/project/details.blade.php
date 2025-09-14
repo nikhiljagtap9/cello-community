@@ -3,7 +3,6 @@
 @section('content')
 <section class="pc-container">
    <div class="pc-content">
-      <!-- [ breadcrumb ] start --> <!-- [ breadcrumb ] end --> 
       <div class="row">
          <div class="col-md-12" bis_skin_checked="1">
             <div class="card" bis_skin_checked="1">
@@ -22,8 +21,7 @@
                         <form>
                            <!-- <div class="col-md-4" bis_skin_checked="1"> 
                               <label class="form-label" >Selected Plot</label> 
-                               <input type="text" id="selectedPlotName" class="form-control projct_detl" readonly 
-           value="">
+                               <input type="text" id="selectedPlotName" class="form-control projct_detl" readonly value="">
                            </div> -->
                            <div class="map_wrap 603">
                               <div class="map_wrap_inner">

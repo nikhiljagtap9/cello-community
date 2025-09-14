@@ -64,7 +64,7 @@
                                     @error('image')<small class="text-danger">{{ $message }}</small>@enderror
 
                                     @if($project->image)
-                                       <img id="imagePreview" src="{{ asset('storage/' . $plot->wing->image) }}" style="width:100px; margin-top:10px;">
+                                       <img id="imagePreview" src="{{ URL('' . $plot->wing->image) }}" style="width:100px; margin-top:10px;">
                                     @else
                                        <img id="imagePreview" src="#" style="display:none; width:100px; margin-top:10px;">
                                     @endif

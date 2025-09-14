@@ -36,9 +36,15 @@ class UserProjectController extends Controller
 
     public function show($id)
     {
+
         $project = Project::with('plots')->findOrFail($id);
         $wings = ProjectWing::where('project_id', $id)->get();
        // select * from projects join plots on projects.id = plots.project_id where project_id = 3 and project_wing_id = 6;
+        
+        // echo "<prE>"; 
+        // print_r($project->plots);
+        // die;
+
         return view('user.project.show', compact('project','wings'));
     }
 
@@ -285,6 +291,109 @@ class UserProjectController extends Controller
             ->with('success', 'Freelancers assigned successfully.');
     }
 
+    public function assignFreelancers_ajax(Request $request)
+    {
+        // Validation rules
+        $request->validate([
+            'project_id' => 'required|exists:projects,id',
+            'plot_id' => 'required|exists:plots,id',
+
+            'freelancer_a_email' => [
+                'nullable',
+                'email',
+                'unique:users,email'
+            ],
+            'freelancer_b_email' => [
+                'nullable',
+                'email',
+                'unique:users,email'
+            ],
+        ],[
+            'plot_id.required' => 'Please select a plot before submitting.',
+            'plot_id.exists' => 'The selected plot is invalid.',
+        ]);
+
+        try {
+            DB::transaction(function () use ($request) {
+                $projectId = $request->project_id;
+                $mainUser = auth()->user();
+
+                // Update plot status
+                $plot = Plot::findOrFail($request->plot_id);
+                $plot->status = 'Booked';
+                $plot->save();
+
+                // Freelancer A (optional)
+                if (!empty($request->freelancer_a_email)) {
+                    $password = '12345678'; // or Str::random(8)
+                    $freelancerA = $mainUser->addChild([
+                        'email' => $request->freelancer_a_email,
+                        'password' => bcrypt($password),
+                        'user_type' => 'freelancer',
+                    ]);
+
+                    $freelancerA->details()->create([
+                        'first_name' => $request->freelancer_a_first_name,
+                        'last_name'  => $request->freelancer_a_last_name,
+                        'phone'      => $request->freelancer_a_phone,
+                        'address'    => $request->freelancer_a_address,
+                    ]);
+
+                    UserWingAssignment::create([
+                        'user_id' => $freelancerA->id,
+                        'project_wing_id' => $request->project_wing_id,
+                        'assigned_by' => $mainUser->id,
+                    ]);
+
+                    // Mail::to($freelancerA->email)->send(new TempPasswordMail($password));
+                }
+
+                // Freelancer B (optional)
+                if (!empty($request->freelancer_b_email)) {
+                    $password = '12345678'; // or Str::random(8)
+                    $freelancerB = $mainUser->addChild([
+                        'email' => $request->freelancer_b_email,
+                        'password' => bcrypt($password),
+                        'user_type' => 'freelancer',
+                    ]);
+
+                    $freelancerB->details()->create([
+                        'first_name' => $request->freelancer_b_first_name,
+                        'last_name'  => $request->freelancer_b_last_name,
+                        'phone'      => $request->freelancer_b_phone,
+                        'address'    => $request->freelancer_b_address,
+                    ]);
+
+                    UserWingAssignment::create([
+                        'user_id' => $freelancerB->id,
+                        'project_wing_id' => $request->project_wing_id,
+                        'assigned_by' => $mainUser->id,
+                    ]);
+
+                    // Mail::to($freelancerB->email)->send(new TempPasswordMail($password));
+                }
+
+                // Save main assignment
+                ProjectFreelancerAssignment::create([
+                    'project_id' => $projectId,
+                    'user_id' => $mainUser->id,
+                    'plot_id' => $request->plot_id,
+                ]);
+            });
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Freelancers assigned successfully.'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
 
     public function ongoingProjects()
     {
@@ -298,7 +407,6 @@ class UserProjectController extends Controller
 
     public function detail($id)
     {
-    
         $project = Project::with(['plots.wing'])->findOrFail($id);
 
        // Get all wings for this project (including soft-deleted if needed)
@@ -311,8 +419,6 @@ class UserProjectController extends Controller
 
         return view('user.project.details', compact('project', 'wings','assignments'));
     }
-
-
 
     public function getAssignmentsByWingOLD($projectId, $wingId)
     {
@@ -386,7 +492,7 @@ class UserProjectController extends Controller
         if (!isset($user->children)) {
             $user->children = $user->children()->with('details')->get();
         }
-      //  echo 'Main Parent '.$user->id.'<br>';
+        //  echo 'Main Parent '.$user->id.'<br>';
         foreach ($user->children as $child) {
             
             if (in_array($child->id, $printedUsers)) {
@@ -416,110 +522,105 @@ class UserProjectController extends Controller
             $grandChildren = $this->loadChildrenRecursive($child, $printedUsers,$wingId);
             $childrenArray = array_merge($childrenArray, $grandChildren);
         }
-// exit;
+        // exit;
         return $childrenArray;
     }
 
 
-public function getAssignmentsByWing($projectId, $wingId)
-{
-    $project = Project::findOrFail($projectId);
+    public function getAssignmentsByWing($projectId, $wingId)
+    {
+        $project = Project::findOrFail($projectId);
 
-    // Get all users belonging to this wing (assigned or not)
-    $usersInWing = User::with(['details', 'assignments.plot', 'children.details'])
-        ->whereHas('userWingAssignments', function($q) use ($wingId) {
-            $q->where('project_wing_id', $wingId);
-        })
-        ->get();
+        // Get all users belonging to this wing (assigned or not)
+        $usersInWing = User::with(['details', 'assignments.plot', 'children.details'])
+            ->whereHas('userWingAssignments', function($q) use ($wingId) {
+                $q->where('project_wing_id', $wingId);
+            })
+            ->get();
 
-    $printedUsers = [];
-    $usersTree = [];
+        $printedUsers = [];
+        $usersTree = [];
 
-    foreach ($usersInWing as $user) {
-        if (!in_array($user->id, $printedUsers)) {
-            $printedUsers[] = $user->id;
+        foreach ($usersInWing as $user) {
+            if (!in_array($user->id, $printedUsers)) {
+                $printedUsers[] = $user->id;
 
-            // Track parent info if exists
-            $user->invited_by = $user->parent ? ($user->parent->details->first_name ?? '') . ' ' . ($user->parent->details->last_name ?? '') : '';
-            $user->invited_by_type = $user->parent ? $user->parent->user_type : '';
+                // Track parent info if exists
+                $user->invited_by = $user->parent ? ($user->parent->details->first_name ?? '') . ' ' . ($user->parent->details->last_name ?? '') : '';
+                $user->invited_by_type = $user->parent ? $user->parent->user_type : '';
 
-            $usersTree[] = $user;
+                $usersTree[] = $user;
 
-            // Recursively load children in this wing
-            $children = $this->loadChildrenRecursive($user, $printedUsers, $wingId);
-            $usersTree = array_merge($usersTree, $children);
+                // Recursively load children in this wing
+                $children = $this->loadChildrenRecursive($user, $printedUsers, $wingId);
+                $usersTree = array_merge($usersTree, $children);
+            }
         }
-    }
 
-    // Flatten user details
-    $usersTree = collect($usersTree)->map(function($user) use ($wingId) {
-        // Find assigned plot for this wing
-        $assignedPlot = $user->assignments->first(function($a) use ($wingId) {
-            return $a->plot && $a->plot->project_wing_id == $wingId;
+        // Flatten user details
+        $usersTree = collect($usersTree)->map(function($user) use ($wingId) {
+            // Find assigned plot for this wing
+            $assignedPlot = $user->assignments->first(function($a) use ($wingId) {
+                return $a->plot && $a->plot->project_wing_id == $wingId;
+            });
+
+            return [
+                'id' => $user->id,
+                'first_name' => $user->details->first_name ?? '',
+                'last_name'  => $user->details->last_name ?? '',
+                'address'    => $user->details->address ?? '',
+                'phone'      => $user->details->phone ?? '',
+                'email'      => $user->email ?? '',
+                'invited_by' => $user->invited_by ?? '',
+                'invited_by_type' => $user->invited_by_type ?? '',
+                'plot_id'   => $assignedPlot->plot->id ?? null,
+                'plot_name' => $assignedPlot->plot->plot_name ?? null,
+            ];
         });
 
-        return [
-            'id' => $user->id,
-            'first_name' => $user->details->first_name ?? '',
-            'last_name'  => $user->details->last_name ?? '',
-            'address'    => $user->details->address ?? '',
-            'phone'      => $user->details->phone ?? '',
-            'email'      => $user->email ?? '',
-            'invited_by' => $user->invited_by ?? '',
-            'invited_by_type' => $user->invited_by_type ?? '',
-            'plot_id'   => $assignedPlot->plot->id ?? null,
-            'plot_name' => $assignedPlot->plot->plot_name ?? null,
-        ];
-    });
+        // Get available plots in this wing
+        $availablePlots = Plot::where('project_id', $projectId)
+            ->where('project_wing_id', $wingId)
+            ->where('status', 'Available')
+            ->get(['id', 'plot_name']);
 
-    // Get available plots in this wing
-    $availablePlots = Plot::where('project_id', $projectId)
-        ->where('project_wing_id', $wingId)
-        ->where('status', 'Available')
-        ->get(['id', 'plot_name']);
-
-    return response()->json([
-        'users' => $usersTree,
-        'plots' => $availablePlots
-    ]);
-}
-
-/**
- * Recursively load children in the same wing (assigned or unassigned)
- */
-private function loadChildrenRecursive($user, &$printedUsers, $wingId)
-{
-    $childrenArray = [];
-
-    $children = $user->children()->with(['details', 'assignments.plot', 'userWingAssignments'])->get();
-
-    foreach ($children as $child) {
-        if (in_array($child->id, $printedUsers)) continue;
-
-        // Check if child belongs to this wing
-        $inWing = $child->userWingAssignments->contains('project_wing_id', $wingId);
-        if (!$inWing) continue;
-
-        $printedUsers[] = $child->id;
-
-        // Track parent info
-        $child->invited_by = $user->details->first_name . ' ' . $user->details->last_name;
-        $child->invited_by_type = $user->user_type;
-
-        $childrenArray[] = $child;
-
-        // Recursively add grandchildren
-        $grandChildren = $this->loadChildrenRecursive($child, $printedUsers, $wingId);
-        $childrenArray = array_merge($childrenArray, $grandChildren);
+        return response()->json([
+            'users' => $usersTree,
+            'plots' => $availablePlots
+        ]);
     }
 
-    return $childrenArray;
-}
+    /**
+     * Recursively load children in the same wing (assigned or unassigned)
+     */
+    private function loadChildrenRecursive($user, &$printedUsers, $wingId)
+    {
+        $childrenArray = [];
 
+        $children = $user->children()->with(['details', 'assignments.plot', 'userWingAssignments'])->get();
 
+        foreach ($children as $child) {
+            if (in_array($child->id, $printedUsers)) continue;
 
+            // Check if child belongs to this wing
+            $inWing = $child->userWingAssignments->contains('project_wing_id', $wingId);
+            if (!$inWing) continue;
 
+            $printedUsers[] = $child->id;
 
+            // Track parent info
+            $child->invited_by = $user->details->first_name . ' ' . $user->details->last_name;
+            $child->invited_by_type = $user->user_type;
+
+            $childrenArray[] = $child;
+
+            // Recursively add grandchildren
+            $grandChildren = $this->loadChildrenRecursive($child, $printedUsers, $wingId);
+            $childrenArray = array_merge($childrenArray, $grandChildren);
+        }
+
+        return $childrenArray;
+    }
 
     /* plot assign to all user type*/
     public function assignPlot(Request $request)
@@ -551,7 +652,6 @@ private function loadChildrenRecursive($user, &$printedUsers, $wingId)
 
         return redirect()->back()->with('success', 'Plot assigned successfully.');
     }
-
    
    
     /**

@@ -1,0 +1,8 @@
+.tooltip_always_show {
+       opacity: 1 !important;   /* always visible */
+       visibility: visible !important;
+}
+.map_wrap_inner {
+    overflow: hidden;
+    display: block;
+}
