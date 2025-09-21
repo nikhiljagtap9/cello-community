@@ -8,6 +8,9 @@
       <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui" />
       <meta http-equiv="X-UA-Compatible" content="IE=edge" />
       <meta name="author" content="" />
+      <meta name="csrf-token" content="{{ csrf_token() }}">
+      <meta name="plots-save-url" content="{{ route('plots.save') }}">
+
       <!-- [Favicon] icon -->
       <link rel="icon" href="{{ asset('admin/assets/images/fev.png')}}" type="image/x-icon" />
       <!-- [Google Font : Public Sans] icon -->
@@ -27,6 +30,8 @@
       <link rel="stylesheet" href="{{ asset('admin/assets/css/style-preset.css')}}" />
       <link rel="stylesheet" href="{{ asset('admin/assets/css/plugins/dataTables.bootstrap5.min.css')}}" />
       <link rel="stylesheet" href="{{ asset('admin/assets/fonts/phosphor/duotone/style.css')}}" />
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+      <link rel="stylesheet" href="{{ asset('css/admin/demo.css') }}">
    </head>
    <!-- [Head] end -->
    @php

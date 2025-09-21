@@ -14,7 +14,8 @@ use App\Models\ProjectFreelancerAssignment;
 use Illuminate\Support\Str;
 use App\Models\ProjectWing;
 use App\Models\UserWingAssignment;
-
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\File;
 
 class UserProjectController extends Controller
 {
@@ -36,7 +37,6 @@ class UserProjectController extends Controller
 
     public function show($id)
     {
-
         $project = Project::with('plots')->findOrFail($id);
         $wings = ProjectWing::where('project_id', $id)->get();
        // select * from projects join plots on projects.id = plots.project_id where project_id = 3 and project_wing_id = 6;
@@ -290,110 +290,6 @@ class UserProjectController extends Controller
         return redirect()->route('user.project.ongoing')
             ->with('success', 'Freelancers assigned successfully.');
     }
-
-    public function assignFreelancers_ajax(Request $request)
-    {
-        // Validation rules
-        $request->validate([
-            'project_id' => 'required|exists:projects,id',
-            'plot_id' => 'required|exists:plots,id',
-
-            'freelancer_a_email' => [
-                'nullable',
-                'email',
-                'unique:users,email'
-            ],
-            'freelancer_b_email' => [
-                'nullable',
-                'email',
-                'unique:users,email'
-            ],
-        ],[
-            'plot_id.required' => 'Please select a plot before submitting.',
-            'plot_id.exists' => 'The selected plot is invalid.',
-        ]);
-
-        try {
-            DB::transaction(function () use ($request) {
-                $projectId = $request->project_id;
-                $mainUser = auth()->user();
-
-                // Update plot status
-                $plot = Plot::findOrFail($request->plot_id);
-                $plot->status = 'Booked';
-                $plot->save();
-
-                // Freelancer A (optional)
-                if (!empty($request->freelancer_a_email)) {
-                    $password = '12345678'; // or Str::random(8)
-                    $freelancerA = $mainUser->addChild([
-                        'email' => $request->freelancer_a_email,
-                        'password' => bcrypt($password),
-                        'user_type' => 'freelancer',
-                    ]);
-
-                    $freelancerA->details()->create([
-                        'first_name' => $request->freelancer_a_first_name,
-                        'last_name'  => $request->freelancer_a_last_name,
-                        'phone'      => $request->freelancer_a_phone,
-                        'address'    => $request->freelancer_a_address,
-                    ]);
-
-                    UserWingAssignment::create([
-                        'user_id' => $freelancerA->id,
-                        'project_wing_id' => $request->project_wing_id,
-                        'assigned_by' => $mainUser->id,
-                    ]);
-
-                    // Mail::to($freelancerA->email)->send(new TempPasswordMail($password));
-                }
-
-                // Freelancer B (optional)
-                if (!empty($request->freelancer_b_email)) {
-                    $password = '12345678'; // or Str::random(8)
-                    $freelancerB = $mainUser->addChild([
-                        'email' => $request->freelancer_b_email,
-                        'password' => bcrypt($password),
-                        'user_type' => 'freelancer',
-                    ]);
-
-                    $freelancerB->details()->create([
-                        'first_name' => $request->freelancer_b_first_name,
-                        'last_name'  => $request->freelancer_b_last_name,
-                        'phone'      => $request->freelancer_b_phone,
-                        'address'    => $request->freelancer_b_address,
-                    ]);
-
-                    UserWingAssignment::create([
-                        'user_id' => $freelancerB->id,
-                        'project_wing_id' => $request->project_wing_id,
-                        'assigned_by' => $mainUser->id,
-                    ]);
-
-                    // Mail::to($freelancerB->email)->send(new TempPasswordMail($password));
-                }
-
-                // Save main assignment
-                ProjectFreelancerAssignment::create([
-                    'project_id' => $projectId,
-                    'user_id' => $mainUser->id,
-                    'plot_id' => $request->plot_id,
-                ]);
-            });
-
-            return response()->json([
-                'status' => true,
-                'message' => 'Freelancers assigned successfully.'
-            ]);
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Something went wrong: ' . $e->getMessage()
-            ], 500);
-        }
-    }
-
 
     public function ongoingProjects()
     {
@@ -661,4 +557,292 @@ class UserProjectController extends Controller
     {
         //
     }
+
+    public function view_project($id)
+    {
+        $id = en_de_crypt($id,'d');
+
+        // echo "<prE>";
+        // echo $id; 
+        // print_r($freelancers);
+        // die;
+
+        $project = Project::with('plots')->findOrFail($id);
+        $wings = ProjectWing::where('project_id', $id)->get();
+        return view('user.project.view_project', compact('project','wings'));
+    }
+
+    public function assignFreelancers_ajax(Request $request)
+    {
+        // Validation rules
+        $request->validate([
+            'project_id' => 'required|exists:projects,id',
+            'freelancer_a_email' => [
+                'nullable',
+                'email',
+                'unique:users,email'
+            ],
+            'freelancer_b_email' => [
+                'nullable',
+                'email',
+                'unique:users,email'
+            ],
+        ]);
+
+        $rawPlotId = trim($request->plot_id);
+
+        // remove "Lot" (case-insensitive) and spaces
+        $cleaned = preg_replace('/[^0-9]/', '', $rawPlotId);
+
+        // convert to integer (removes leading zeros)
+        $plotId = (int) $cleaned;
+
+        $check_plot = \DB::table('plots')
+            ->select('id', 'project_wing_id','plot_name')
+            ->where('plot_name', $plotId)
+            ->where('project_id', $request->project_id)
+            ->where('project_wing_id', $request->wing_id)
+            ->first();
+
+        // echo "<pre>";
+        // print_r($check_plot); die;
+
+        if (! $check_plot) {
+            return back()->withErrors([
+                'plot_id' => 'This plot does not belong to the selected project/wing.',
+            ]);
+        }
+
+        $inserted_plot_id = $check_plot->id;
+        $project_wing_id  = $check_plot->project_wing_id;
+        $plot_name        = $check_plot->plot_name;
+
+        try {
+            DB::transaction(function () use ($request, $inserted_plot_id, $project_wing_id, $plot_name) {
+                $projectId = $request->project_id;
+                $mainUser  = auth()->user();
+
+                // Update plot status
+                $plot = Plot::findOrFail($inserted_plot_id);
+                if ($plot->status == 'Available') {
+                    $plot->status = 'Booked';
+                    $plot->save();
+                }
+
+                $password = '123123';
+                // Freelancer A (optional)
+                if (!empty($request->freelancer_a_email)) {
+                    $freelancerA = $mainUser->addChild([
+                        'email' => $request->freelancer_a_email,
+                        'password' => bcrypt($password),
+                        'user_type' => 'freelancer',
+                    ]);
+
+                    $freelancerA->details()->create([
+                        'first_name' => $request->freelancer_a_first_name,
+                        'last_name'  => $request->freelancer_a_last_name,
+                        'phone'      => $request->freelancer_a_phone,
+                        'address'    => $request->freelancer_a_address,
+                    ]);
+
+                    UserWingAssignment::create([
+                        'user_id' => $freelancerA->id,
+                        'project_wing_id' => $project_wing_id, // ✅ use DB value, not request
+                        'assigned_by' => $mainUser->id,
+                    ]);
+                }
+
+                // Freelancer B (optional)
+                if (!empty($request->freelancer_b_email)) {
+                    $freelancerB = $mainUser->addChild([
+                        'email' => $request->freelancer_b_email,
+                        'password' => bcrypt($password),
+                        'user_type' => 'freelancer',
+                    ]);
+
+                    $freelancerB->details()->create([
+                        'first_name' => $request->freelancer_b_first_name,
+                        'last_name'  => $request->freelancer_b_last_name,
+                        'phone'      => $request->freelancer_b_phone,
+                        'address'    => $request->freelancer_b_address,
+                    ]);
+
+                    UserWingAssignment::create([
+                        'user_id' => $freelancerB->id,
+                        'project_wing_id' => $project_wing_id, // ✅ fixed
+                        'assigned_by' => $mainUser->id,
+                    ]);
+                }
+
+                // Save main assignment
+                ProjectFreelancerAssignment::create([
+                    'project_id' => $projectId,
+                    'user_id'    => $mainUser->id,
+                    'plot_id'    => $inserted_plot_id,
+                ]);
+            });
+
+            // ✅ Update JSON file
+            $jsonPath = public_path("wings/{$project_wing_id}/plots.json");
+            if (File::exists($jsonPath)) {
+                $plotsData = json_decode(File::get($jsonPath), true);
+
+                // Format plot_name into JSON ID (Lot 01, Lot 02…)
+                $plotJsonId = "Lot " . str_pad($plot_name, 2, "0", STR_PAD_LEFT);
+
+                foreach ($plotsData as &$p) {
+                    if ($p['id'] === $plotJsonId) {
+                        $p['status'] = 'Booked';
+                        break;
+                    }
+                }
+
+                File::put($jsonPath, json_encode($plotsData, JSON_PRETTY_PRINT));
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Information updated successfully.'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function create_Freelancers(Request $request)
+    {
+        // Validation rules
+        $request->validate([
+            'project_id' => 'required|exists:projects,id',
+            'freelancer_a_email' => [
+                'nullable',
+                'email',
+                'unique:users,email'
+            ],
+            'freelancer_b_email' => [
+                'nullable',
+                'email',
+                'unique:users,email'
+            ],
+        ]);
+
+        // echo "<pre>";
+        // print_r($request->freelancer_a_email);
+        // die;
+
+        DB::transaction(function () use ($request) {
+            $projectId = $request->project_id;
+            $mainUser  = auth()->user();
+
+            $password = '123123';
+            // Freelancer A (optional)
+            if (!empty($request->freelancer_a_email)) {
+                $freelancerA = $mainUser->addChild([
+                    'email' => $request->freelancer_a_email,
+                    'password' => bcrypt($password),
+                    'user_type' => 'freelancer',
+                ]);
+
+                $freelancerA->details()->create([
+                    'first_name' => $request->freelancer_a_first_name,
+                    'last_name'  => $request->freelancer_a_last_name,
+                    'phone'      => $request->freelancer_a_phone,
+                    'address'    => $request->freelancer_a_address,
+                ]);
+
+                UserWingAssignment::create([
+                    'user_id' => $freelancerA->id,
+                    // 'project_wing_id' => $project_wing_id ??, // ✅ use DB value, not request
+                    'project_id' => $projectId, // ✅ use DB value, not request
+                    'assigned_by' => $mainUser->id,
+                ]);
+
+                ProjectFreelancerAssignment::create([
+                    'project_id' => $projectId,
+                    'user_id'    => $freelancerA->id,
+                    // 'user_id'    => $mainUser->id,
+                    // 'plot_id'    => $inserted_plot_id,
+                ]);
+            }
+
+            // Freelancer B (optional)
+            if (!empty($request->freelancer_b_email)) {
+                $freelancerB = $mainUser->addChild([
+                    'email' => $request->freelancer_b_email,
+                    'password' => bcrypt($password),
+                    'user_type' => 'freelancer',
+                ]);
+
+                $freelancerB->details()->create([
+                    'first_name' => $request->freelancer_b_first_name,
+                    'last_name'  => $request->freelancer_b_last_name,
+                    'phone'      => $request->freelancer_b_phone,
+                    'address'    => $request->freelancer_b_address,
+                ]);
+
+                UserWingAssignment::create([
+                    'user_id' => $freelancerB->id,
+                    // 'project_wing_id' => $project_wing_id ?? '', // ✅ fixed
+                    'project_id' => $projectId, // ✅ fixed
+                    'assigned_by' => $mainUser->id,
+                ]);
+                
+                ProjectFreelancerAssignment::create([
+                    'project_id' => $projectId,
+                    'user_id'    => $freelancerB->id,
+                    // 'user_id'    => $mainUser->id,
+                    // 'plot_id'    => $inserted_plot_id,
+                ]);
+            }
+
+
+        });
+
+        return response()->json([
+            'status' => true,
+            'message' => 'freelancer created successfully.'
+        ]);
+    }
+
+    public function getFreelancers($projectId)
+    {
+        try {
+            $freelancers = DB::table('project_freelancer_assignments as pfa')
+                ->join('users as u', 'u.id', '=', 'pfa.user_id')
+                ->join('user_details as ud', 'ud.user_id', '=', 'u.id')
+                // Self join: get parent (inviter)
+                ->leftJoin('users as parent', 'parent.id', '=', 'u.parent_id')
+                ->leftJoin('user_details as pud', 'pud.user_id', '=', 'parent.id')
+                ->where('pfa.project_id', $projectId)
+                ->where('u.user_type', 'freelancer')
+                ->select(
+                    'u.id as user_id',
+                    'u.email',
+                    'ud.first_name',
+                    'ud.last_name',
+                    'ud.address',
+                    'ud.phone',
+                    // inviter (parent user)
+                    DB::raw("CONCAT(COALESCE(pud.first_name, ''), ' ', COALESCE(pud.last_name, '')) as invitee_name"),
+                    'parent.email as invitee_email',
+                    'parent.user_type as invitee_user_type' // ✅ added here
+                )
+                ->get();
+
+            return response()->json([
+                'status' => true,
+                'freelancers' => $freelancers
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
 }
