@@ -9,6 +9,7 @@ class UserWingAssignment extends Model
     protected $fillable = [
         'user_id',
         'project_wing_id',
+        'project_id',
         'assigned_by',
     ];
 

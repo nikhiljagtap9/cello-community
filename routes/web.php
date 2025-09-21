@@ -38,11 +38,18 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+
+Route::post('/plots/save', [PlotController::class, 'save_plots'])->name('plots.save');
+
 Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
 
         Route::get('dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+
+        Route::any('wings/plot', [PlotController::class, 'view_added_plots'])->name('view_added_plots');
+
+
         Route::resource('plot', PlotController::class);
         Route::resource('user', UserController::class);
         Route::resource('project', ProjectController::class);
@@ -54,7 +61,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // New Projects (created by admin)
         Route::get('/projects/new', [UserProjectController::class, 'newProjects'])
         ->name('project.new');
-    
+        
+
+        Route::get('projects/view/{id}', [UserProjectController::class, 'view_project']); 
+
+
         // Ongoing Projects (status = ongoing)
         Route::get('/projects/ongoing', [UserProjectController::class, 'ongoingProjects'])
             ->name('project.ongoing');
@@ -62,8 +73,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('projects/{id}', [UserProjectController::class, 'show'])->name('project.show'); 
         Route::post('projects/assign-freelancers', [UserProjectController::class, 'assignFreelancers'])->name('project.assignFreelancers');
 
+        Route::get('projects/{project}/freelancers', [UserProjectController::class, 'getFreelancers'])->name('projects.freelancers');
+
 
         Route::post('projects/assign-freelancers-ajax', [UserProjectController::class, 'assignFreelancers_ajax']); 
+        Route::post('create_freelancers', [UserProjectController::class, 'create_Freelancers']); 
         Route::get('projects/{id}/detail', [UserProjectController::class, 'detail'])->name('project.detail');  
         Route::get('/project/{project}/plot/{plot}/assignments', [UserProjectController::class, 'getPlotAssignments'])
             ->name('project.plot.assignments');

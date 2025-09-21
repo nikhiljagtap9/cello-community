@@ -61,7 +61,7 @@
                                     <div class="map_wrap 603">
                                         <div class="map_wrap_inner">
                                             <div class="map_pointer">
-                                                <img src="" class="map_img" id="wingImage">
+                                                <img src="{{ asset('' . $wing->image) }}" class="map_img" id="wingImage">
                                                 <!-- Map markers -->
                                                 <div class="map_pointer_main">
                                                     @foreach($project->plots as $plot)

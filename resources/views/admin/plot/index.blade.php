@@ -3,129 +3,123 @@
 @section('content')
 
 <section class="pc-container">
-   <div class="pc-content">
-      <!-- [ breadcrumb ] start -->
-      <!-- [ breadcrumb ] end -->
-      <div class="row">
-         <div class="col-sm-12">
-            <div class="card">
-               <div class="card-header">
-                  <h5>
-                     <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-map">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                        <path d="M3 7l6 -3l6 3l6 -3v13l-6 3l-6 -3l-6 3v-13" />
-                        <path d="M9 4v13" />
-                        <path d="M15 7v13" />
-                     </svg>
-                     View Plot
-                  </h5>
-               </div>
-               <div class="card-body">
-                @if (session('success'))
+    <div class="pc-content">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>
+                            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-map">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                <path d="M3 7l6 -3l6 3l6 -3v13l-6 3l-6 -3l-6 3v-13" />
+                                <path d="M9 4v13" />
+                                <path d="M15 7v13" />
+                            </svg>
+                            View Plot
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        @if (session('success'))
                         <div class="alert alert-success alert-dismissible fade show" role="alert">
                             {{ session('success') }}
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
-                @endif
+                        @endif
+                        @if (session('error'))
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            {{ session('error') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        @endif
+                        <div class="table-responsive">
+                            <table id="row-callback" class="table table-striped table-bordered nowrap">
+                                <thead>
+                                    <tr>
+                                        <th>Project Name</th>
+                                        <th>Plot Label</th>
+                                        <th>Added User</th>
+                                        <th>Plots</th>
+                                        <th>Add Plot</th>
+                                        <th>Edit</th>
+                                        <th>Delete</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($projects as $project)
+                                    @foreach($project->wings as $wing)
+                                    <tr>
+                                        <td>{{ $project->name }}</td>
+                                        <td><span class="badge bg-primary">{{ $wing->plot_label }}</span></td>
+                                        <td>
+                                            {{ optional(optional($project->user)->details)->first_name ?? 'N/A' }}
+                                            {{ optional(optional($project->user)->details)->last_name ?? '' }}
+                                        </td>
+                                        <td>
+                                            @forelse($wing->plots->sortBy('plot_name') as $plot)
+                                                <span class="badge bg-info">{{ $plot->plot_name }}</span>
+                                            @empty
+                                                <span class="text-muted">No Plots Available</span>
+                                            @endforelse
 
-                @if (session('error'))
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        {{ session('error') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                        </td>
+                                        <td>
+                                            <a href="{{url('admin/wings/plot?project_id=' . en_de_crypt($project->id) . '&wing_id=' . en_de_crypt($wing->id))}}" class="btn btn-primary btn-sm">
+                                                <i class="fa fa-plus"></i> Add Plots
+                                            </a>
+                                        </td>
+                                        <td>
+                                            @if($wing->plots->isNotEmpty())
+                                            <a href="{{ route('admin.plot.edit', $wing->plots->first()->id) }}" class="btn btn-primary btn-sm">
+                                                <i class="fa fa-edit"></i> Edit
+                                            </a>
+                                            @else
+                                            <span class="text-muted">N/A</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if($wing->plots->isNotEmpty())
+                                            <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal{{ $wing->plots->first()->id }}">
+                                                <i class="fa fa-trash"></i> Delete
+                                            </button>
+
+                                            <!-- Delete Modal -->
+                                            <div class="modal fade" id="deleteModal{{ $wing->plots->first()->id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ $wing->plots->first()->id}}" aria-hidden="true">
+                                                <div class="modal-dialog modal-dialog-centered">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="deleteModalLabel{{ $wing->plots->first()->id }}">Confirm Delete</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            Are you sure you want to delete <strong>{{ $project->name }} - {{ $wing->plot_label }}</strong>?
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                            <form action="{{ route('admin.plot.destroy', $wing->plots->first()->id) }}" method="POST">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit" class="btn btn-danger">Yes, Delete</button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            @else
+                                            <span class="text-muted">N/A</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                    @endforeach
+                                </tbody>
+                            </table>
+
+                        </div>
                     </div>
-                @endif
-                <div class="table-responsive">
-                    <table id="row-callback" class="table table-striped table-bordered nowrap">
-                      <thead>
-                          <tr>
-                              <th>Project Name</th>
-                              <th>Plot Label</th>
-                              <th>Added User</th>
-                              <th>Plots</th>
-                              <th>Edit</th>
-                              <th>Delete</th>
-                          </tr>
-                      </thead>
-                      <tbody>
-                          @foreach($projects as $project)
-                              @foreach($project->wings as $wing)
-                                  <tr>
-                                      <td>{{ $project->name }}</td>
-                                      <td><span class="badge bg-primary">{{ $wing->plot_label }}</span></td>
-                                      <td>
-                                          {{ optional(optional($project->user)->details)->first_name ?? 'N/A' }}
-                                          {{ optional(optional($project->user)->details)->last_name ?? '' }}
-                                      </td>
-                                      <td>
-                                          @forelse($wing->plots as $plot)
-                                              <span class="badge bg-info">{{ $plot->plot_name }}</span>
-                                          @empty
-                                              <span class="text-muted">No Plots Available</span>
-                                          @endforelse
-                                      </td>
-                                      <td>
-                                          @if($wing->plots->isNotEmpty())
-                                              <a href="{{route('admin.plot.edit', $wing->plots->first()->id) }}" class="edit_movie" > 
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-edit"> <path stroke="none" d="M0 0h24v24H0z" fill="none"/> 
-                                                  <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /> 
-                                                  <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
-                                                  <path d="M16 5l3 3" /> 
-                                                </svg> 
-                                              </a>
-                                          @else
-                                              <span class="text-muted">N/A</span>
-                                          @endif
-                                      </td>
-                                      <td>
-                                          @if($wing->plots->isNotEmpty())
-                                              <button type="button" class="btn btn-link p-0 m-0 border-0 bg-transparent" data-bs-toggle="modal" data-bs-target="#deleteModal{{ $wing->plots->first()->id }}"> 
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-trash text-danger"> 
-                                                  <path stroke="none" d="M0 0h24v24H0z" fill="none"/> <path d="M4 7l16 0" /> 
-                                                  <path d="M10 11l0 6" /> 
-                                                  <path d="M14 11l0 6" /> 
-                                                  <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /> <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /> 
-                                                </svg> 
-                                              </button>
-                                              
-                                              <!-- Delete Modal -->
-                                              <div class="modal fade" id="deleteModal{{ $wing->plots->first()->id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ $wing->plots->first()->id}}" aria-hidden="true">
-                                                  <div class="modal-dialog modal-dialog-centered">
-                                                      <div class="modal-content">
-                                                          <div class="modal-header">
-                                                              <h5 class="modal-title" id="deleteModalLabel{{ $wing->plots->first()->id }}">Confirm Delete</h5>
-                                                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                          </div>
-                                                          <div class="modal-body">
-                                                              Are you sure you want to delete <strong>{{ $project->name }} - {{ $wing->plot_label }}</strong>?
-                                                          </div>
-                                                          <div class="modal-footer">
-                                                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                              <form action="{{ route('admin.plot.destroy', $wing->plots->first()->id) }}" method="POST">
-                                                                  @csrf
-                                                                  @method('DELETE')
-                                                                  <button type="submit" class="btn btn-danger">Yes, Delete</button>
-                                                              </form>
-                                                          </div>
-                                                      </div>
-                                                  </div>
-                                              </div>
-                                          @else
-                                              <span class="text-muted">N/A</span>
-                                          @endif
-                                      </td>
-                                  </tr>
-                              @endforeach
-                          @endforeach
-                      </tbody>
-                  </table>
-
-                  </div>
-               </div>
+                </div>
             </div>
-         </div>
-      </div>
-      <!-- [ Main Content ] end -->
-   </div>
+        </div>
+    </div>
 </section>
 @endsection
 @section('scripts')
