@@ -1,0 +1,22 @@
+[
+    {
+        "id": "Lot 01",
+        "x": 593,
+        "y": 834,
+        "size": "100m2",
+        "location": "Kedgaon",
+        "dimensions": "30*50",
+        "status": "Booked",
+        "type": "default"
+    },
+    {
+        "id": "Lot 02",
+        "x": 527,
+        "y": 823,
+        "size": null,
+        "location": "Pune",
+        "dimensions": "50*85",
+        "status": "Booked",
+        "type": "default"
+    }
+]

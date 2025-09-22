@@ -23,6 +23,8 @@
                         <div class="row" bis_skin_checked="1">
                             <div class="col-md-12 comn_md comn_md" bis_skin_checked="1">
                                 <!-- Search -->
+                                <span class="form-control">Project name - {{$project_record->name}}</span>
+                                <br>
                                 <div class="card mb-3">
                                     <div class="card-body">
                                         <h5 class="card-title">Search / Filter Plots</h5>

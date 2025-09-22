@@ -18,7 +18,7 @@ class PlotController extends Controller
     public function index()
     {
         $projects = Project::with(['plots.wing', 'user'])
-            ->whereHas('plots') // only projects that have at least 1 plot
+            // ->whereHas('plots') // only projects that have at least 1 plot
             ->latest()
             ->get();
         return view('admin.plot.index', compact('projects'));
@@ -62,8 +62,6 @@ class PlotController extends Controller
 
                 $imagePath = 'projects/' . $fileName; // relative path for DB
             }
-
-
 
             // Create project wing
             $wing = ProjectWing::create([
@@ -213,7 +211,9 @@ class PlotController extends Controller
             $plots = json_decode(File::get($file), true);
         }
 
-        return view('admin.plot.add_edit_plot',compact('wing_name','wid','pid','plots','wing_image'));
+        $project_record = DB::table('projects')->where('id', $pid)->first();
+
+        return view('admin.plot.add_edit_plot',compact('wing_name','wid','pid','plots','wing_image','project_record'));
     }
 
     public function save_plots(Request $request)

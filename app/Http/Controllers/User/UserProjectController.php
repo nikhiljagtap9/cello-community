@@ -560,16 +560,17 @@ class UserProjectController extends Controller
 
     public function view_project($id)
     {
-        $id = en_de_crypt($id,'d');
+        $projectId = en_de_crypt($id,'d');
+
+        $freel_list = get_added_fre_proj_wise($projectId);
 
         // echo "<prE>";
-        // echo $id; 
-        // print_r($freelancers);
+        // print_r($freel_list);
         // die;
 
-        $project = Project::with('plots')->findOrFail($id);
-        $wings = ProjectWing::where('project_id', $id)->get();
-        return view('user.project.view_project', compact('project','wings'));
+        $project = Project::with('plots')->findOrFail($projectId);
+        $wings = ProjectWing::where('project_id', $projectId)->get();
+        return view('user.project.view_project', compact('project','wings','freel_list'));
     }
 
     public function assignFreelancers_ajax(Request $request)
@@ -577,6 +578,7 @@ class UserProjectController extends Controller
         // Validation rules
         $request->validate([
             'project_id' => 'required|exists:projects,id',
+            'assign_id'  => 'required',
             'freelancer_a_email' => [
                 'nullable',
                 'email',
@@ -588,6 +590,13 @@ class UserProjectController extends Controller
                 'unique:users,email'
             ],
         ]);
+
+        $post_data = $request->all();
+        $project_id = $post_data['project_id'];
+
+        // echo "<pre>";
+        // print_r($post_data);
+        // die;
 
         $rawPlotId = trim($request->plot_id);
 
@@ -603,9 +612,6 @@ class UserProjectController extends Controller
             ->where('project_id', $request->project_id)
             ->where('project_wing_id', $request->wing_id)
             ->first();
-
-        // echo "<pre>";
-        // print_r($check_plot); die;
 
         if (! $check_plot) {
             return back()->withErrors([
@@ -629,57 +635,32 @@ class UserProjectController extends Controller
                     $plot->save();
                 }
 
-                $password = '123123';
-                // Freelancer A (optional)
-                if (!empty($request->freelancer_a_email)) {
-                    $freelancerA = $mainUser->addChild([
-                        'email' => $request->freelancer_a_email,
-                        'password' => bcrypt($password),
-                        'user_type' => 'freelancer',
-                    ]);
+                if (!empty($request->assign_id)) {
 
-                    $freelancerA->details()->create([
-                        'first_name' => $request->freelancer_a_first_name,
-                        'last_name'  => $request->freelancer_a_last_name,
-                        'phone'      => $request->freelancer_a_phone,
-                        'address'    => $request->freelancer_a_address,
-                    ]);
-
-                    UserWingAssignment::create([
-                        'user_id' => $freelancerA->id,
-                        'project_wing_id' => $project_wing_id, // ✅ use DB value, not request
-                        'assigned_by' => $mainUser->id,
-                    ]);
+                    UserWingAssignment::updateOrCreate(
+                        [
+                            'user_id'    => $request->assign_id,   // condition
+                            'project_id' => $projectId,  // condition
+                        ],
+                        [
+                            'project_wing_id' => $project_wing_id, // ✅ DB value
+                            'assigned_by'     => $mainUser->id,
+                        ]
+                    );
                 }
 
-                // Freelancer B (optional)
-                if (!empty($request->freelancer_b_email)) {
-                    $freelancerB = $mainUser->addChild([
-                        'email' => $request->freelancer_b_email,
-                        'password' => bcrypt($password),
-                        'user_type' => 'freelancer',
-                    ]);
-
-                    $freelancerB->details()->create([
-                        'first_name' => $request->freelancer_b_first_name,
-                        'last_name'  => $request->freelancer_b_last_name,
-                        'phone'      => $request->freelancer_b_phone,
-                        'address'    => $request->freelancer_b_address,
-                    ]);
-
-                    UserWingAssignment::create([
-                        'user_id' => $freelancerB->id,
-                        'project_wing_id' => $project_wing_id, // ✅ fixed
-                        'assigned_by' => $mainUser->id,
-                    ]);
-                }
 
                 // Save main assignment
-                ProjectFreelancerAssignment::create([
-                    'project_id' => $projectId,
-                    'user_id'    => $mainUser->id,
-                    'plot_id'    => $inserted_plot_id,
-                ]);
+                ProjectFreelancerAssignment::updateOrCreate(
+                    [
+                        'project_id' => $projectId,       // 🔍 check condition
+                        'user_id'    => $mainUser->id,    // 🔍 check condition
+                    ],
+                    [
+                        'plot_id'    => $inserted_plot_id, // ✅ insert or update
+                    ]
+                );
+
             });
 
             // ✅ Update JSON file
@@ -844,5 +825,37 @@ class UserProjectController extends Controller
             ], 500);
         }
     }
+
+    public function getAssignedUserToPlot(Request $request)
+    {
+        $projectId = $request->input('project_id');
+        $plotName  = $request->input('plot_id'); // this is "1", "2", etc.
+
+        // 1. Get the plot record
+        $plot = DB::table('plots')
+            ->where('project_id', $projectId)
+            ->where('plot_name', $plotName)
+            ->first();
+
+        if (!$plot) {
+            return response()->json(['error' => 'Plot not found'], 404);
+        }
+
+        // 2. Check assignment
+        $assignment = DB::table('project_freelancer_assignments')
+            ->where('project_id', $projectId)
+            ->where('plot_id', $plot->id)
+            ->first();
+
+        if (!$assignment) {
+            return response()->json(['error' => 'No assignment found'], 404);
+        }
+
+        // 3. Return the assigned user id
+        return response()->json([
+            'user_id' => $assignment->user_id,
+        ]);
+    }
+
 
 }
