@@ -65,7 +65,7 @@
                                     <small class="text-danger d-block mt-1">{{ $message }}</small>
                                     @enderror
                                 </div>
-                                <div class="col-md-12">
+                                <div class="col-md-12 mt-3">
                                     <button type="submit" class="btn btn-primary mb-4">Add Plot</button>
                                 </div>
                             </div>

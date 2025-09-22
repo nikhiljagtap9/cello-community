@@ -109,6 +109,33 @@ function renderMarkers(wingId) {
 
             // Modal title & delete button
             document.getElementById("plotModalTitle").innerText = "Edit Plot " + p.id;
+
+
+            let projectId = document.querySelector(".selected_proj_id").value;
+            var plot_id = parseInt(p.id.replace("Lot ", ""), 10);
+
+            fetch('/get-assigned-user', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({
+                    project_id: projectId,
+                    plot_id: plot_id
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.user_id) {
+                    console.log("Assigned User ID:", data.user_id);
+                    document.querySelector("#plotUsers").value = data.user_id;
+                }
+            });
+
+            console.log(plot_id);
+            console.log(projectId);
+
             // document.getElementById("deletePlotBtn").style.display = "inline-block";
 
             // Show Bootstrap modal
@@ -130,6 +157,7 @@ function initWingSelect() {
         let selected  = this.options[this.selectedIndex];
         let wingId    = this.value;
         let wingImage = selected.dataset.image;
+
 
         // Replace content inside map_wrap with image + container
         const mapWrap = document.querySelector(".map_wrap");

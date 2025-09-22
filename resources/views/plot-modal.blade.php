@@ -39,6 +39,20 @@
                         <label class="form-label">Status</label>
                         <input type="text" class="form-control" id="plotStatus" readonly>
                     </div>
+                    <div class="col-sm-3 mb-3">
+                        <label class="form-label">Users</label>
+                        <select class="form-control" id="plotUsers" name="assign_id">
+                            <option value="">-- Select User --</option>
+                            @foreach($freel_list as $user)
+                            <option value="{{ $user->id }}" 
+                                {{ isset($assignedUserId) && $assignedUserId == $user->id ? 'selected' : '' }}>
+                                {{ $user->first_name }} {{ $user->last_name }} ({{ $user->email }})
+                            </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+
                 </div>
                 <div class="modal-footer">
                     {{-- <button type="button" id="deletePlotBtn" class="btn btn-danger">Delete</button> --}}

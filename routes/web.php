@@ -55,9 +55,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('project', ProjectController::class);
     });
 
+    Route::post('/get-assigned-user', [UserProjectController::class, 'getAssignedUserToPlot'])
+     ->name('get.assigned.user');
+
+
     Route::middleware(['auth', 'users'])->prefix('user')->name('user.')->group(function () {
 
-        Route::get('dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
+        Route::get('dashboard', [UserDasrhboadController::class, 'index'])->name('dashboard');
         // New Projects (created by admin)
         Route::get('/projects/new', [UserProjectController::class, 'newProjects'])
         ->name('project.new');

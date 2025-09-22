@@ -31,8 +31,9 @@
                                 </div>
                                 <div class="clear"></div>
                                 <div class="projct_desc">
-                                    {{ ucwords($project->description) }}
+                                    {{ Str::words(ucwords($project->description), 50, '...') }}
                                 </div>
+
                                 <div class="clear"></div>
                                 <a class="btn btn-sm btn-primary plot_ad_new" href="{{URL('user/projects/view/'.en_de_crypt($project->id))}}">
                                     View Project

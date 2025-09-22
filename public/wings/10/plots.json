@@ -1,0 +1,22 @@
+[
+    {
+        "id": "Lot 17",
+        "x": 579,
+        "y": 459,
+        "size": "100m3",
+        "location": "HIJ",
+        "dimensions": "50*88",
+        "status": "Available",
+        "type": "default"
+    },
+    {
+        "id": "Lot 18",
+        "x": 513,
+        "y": 462,
+        "size": "12",
+        "location": "ABC",
+        "dimensions": "55*88",
+        "status": "Available",
+        "type": "default"
+    }
+]
